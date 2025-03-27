@@ -1,0 +1,10 @@
+{
+  "files.associations": {
+    "*.ejs": "html",
+    "*.jsx": "javascriptreact",
+    "LICENSE": "plaintext",
+    "*.css": "tailwindcss",
+    "iostream": "cpp",
+    "vector": "cpp"
+  }
+}
