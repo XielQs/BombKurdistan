@@ -18,7 +18,7 @@ make -j
 
 ## Gameplay
 
-todotodotodotodo
+https://github.com/user-attachments/assets/95879509-924b-4f56-b1af-2e562864e58d
 
 ## License
 
