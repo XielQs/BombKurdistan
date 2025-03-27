@@ -19,7 +19,7 @@ enum GameState {
     GAME_OVER,
     WIN
 };
-GameState gameState = WIN;
+GameState gameState = PLAYING;
 
 void createAttack(Player& player) {
     AttackSize size = (AttackSize)(GetRandomValue(0, 2));
