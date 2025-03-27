@@ -19,7 +19,7 @@ enum GameState {
     GAME_OVER,
     WIN
 };
-GameState gameState = PLAYING;
+GameState gameState = WIN;
 
 void createAttack(Player& player) {
     AttackSize size = (AttackSize)(GetRandomValue(0, 2));
@@ -46,15 +46,24 @@ void createAttack(Player& player) {
 int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Kurdistan Bombalayici");
     SetTargetFPS(60);
+    InitAudioDevice();
     Texture2D bossTexture = LoadTexture("assets/boss.png");
     Texture2D playerTexture = LoadTexture("assets/player.png");
     Texture2D bombTexture = LoadTexture("assets/bomb.png");
+    Sound bgMusic = LoadSound("assets/bg_music.mp3");
 
     Player player(playerTexture);
     Boss boss(bossTexture);
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(Color{ 10, 10, 10, 255 });
+        if (gameState == PLAYING) {
+            if (!IsSoundPlaying(bgMusic)) {
+                PlaySound(bgMusic);
+            }
+        } else {
+            StopSound(bgMusic);
+        }
         if (gameState == PLAYING) {
             for (size_t i = 0; i < bossAttacks.size(); ++i) {
                 BossAttack& attack = bossAttacks[i];
@@ -127,8 +136,9 @@ int main() {
             }
         } else if (gameState == WIN) {
             DrawText("Helal Olsun!", GetScreenWidth() / 2 - 50, GetScreenHeight() / 2 - 50, 20, GREEN);
-            DrawText("Senin sayende kurdistancilar dustu!", GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, WHITE);
-            DrawText("Artik Turkiye Cumhuriyeti cok daha mutlu bir devlet olabilir", GetScreenWidth() / 2 - 300, GetScreenHeight() / 2 + 20, 20, WHITE);
+            DrawText("Senin sayende xtinfirev ve kurtler dalgayi aldi!", GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, WHITE);
+            DrawText("Artik Turkiye Cumhuriyeti cok daha mutlu bir devlet olabilir", GetScreenWidth() / 2 - 250, GetScreenHeight() / 2 + 20, 20, WHITE);
+            DrawText("YASASIN TURKIYE CUMHURIYETI", GetScreenWidth() / 2 - 150, GetScreenHeight() / 2 + 45, 20, RED);
             DrawText("Kurdistani tekrar bombalamak icin R'ye bas", GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 100, 20, WHITE);
             DrawText("Mutlu bir sekilde ayrilmak icin ESC'ye bas", GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 140, 20, WHITE);
     
