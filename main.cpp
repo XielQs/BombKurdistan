@@ -3,11 +3,13 @@
 #define ATTACK_OFFSET 150
 #include <raylib.h>
 #include "Player.h"
-#include "Boss.h"
 #include "BossAttack.h"
+#include "Difficulty.h"
+#include "Boss.h"
 #include "Bomb.h"
 #include <vector>
 #include <math.h>
+#define DARKRED (Color){ 139, 0, 0, 255 }
 
 std::vector<BossAttack> bossAttacks;
 std::vector<Bomb> bombs;
@@ -16,10 +18,16 @@ float attackTimer = 0.f;
 enum GameState {
     PLAYING,
     GAME_OVER,
+    MAIN_MENU,
     WIN
 };
-GameState gameState = PLAYING;
+GameState gameState = MAIN_MENU;
 bool isMuted = false;
+
+void DrawTextCenter(const char* text, float x, float y, float fontSize, Color color) {
+    Vector2 textSize = MeasureTextEx(GetFontDefault(), text, fontSize, 1.0f);
+    DrawText(text, x - textSize.x / 2, y - textSize.y / 2, fontSize, color);
+}
 
 void createAttack(Player& player) {
     AttackSize size = (AttackSize)(GetRandomValue(0, 2));
@@ -46,6 +54,7 @@ void createAttack(Player& player) {
 int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Kurdistan Bombalayici");
     SetTargetFPS(60);
+    SetExitKey(0) ; // disable ESC key
     InitAudioDevice();
     Texture2D bossTexture = LoadTexture("assets/boss.png");
     Texture2D playerTexture = LoadTexture("assets/player.png");
@@ -65,6 +74,8 @@ int main() {
         } else {
             StopSound(bgMusic);
         }
+        float screenX = GetScreenWidth() / 2.f;
+        float screenY = GetScreenHeight() / 2.f;
         if (gameState == PLAYING) {
             if (IsKeyPressed(KEY_M)) {
                 isMuted = !isMuted;
@@ -73,6 +84,9 @@ int main() {
                 } else {
                     PlaySound(bgMusic);
                 }
+            }
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                gameState = MAIN_MENU;
             }
             for (size_t i = 0; i < bossAttacks.size(); ++i) {
                 BossAttack& attack = bossAttacks[i];
@@ -90,7 +104,7 @@ int main() {
             attackTimer += GetFrameTime();
             if (attackTimer >= 0.5f) {
                 if (GetRandomValue(0, 2) == 0) { // 50%
-                    int attackCount = GetRandomValue(1, 2);
+                    int attackCount = GetRandomValue(1, (currentDifficulty == EASY) ? 2 : (currentDifficulty == NORMAL) ? 3 : 5);
                     for (int j = 0; j < attackCount; ++j) {
                         createAttack(player);
                     }
@@ -125,11 +139,11 @@ int main() {
                 gameState = WIN;
             }
         } else if (gameState == GAME_OVER) {
-            DrawText("Beceriksizsin", GetScreenWidth() / 2 - 50, GetScreenHeight() / 2 - 50, 20, RED);
-            DrawText("Senin yuzunden kurtler bagimsizlasip isyan cikartti ve", GetScreenWidth() / 2 - 250, GetScreenHeight() / 2, 20, WHITE);
-            DrawText("baskent Ankara dustu, Allah belani versin.", GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, 20, WHITE);
-            DrawText("Adam gibi oynayacaksan R'ye bas", GetScreenWidth() / 2 - 150, GetScreenHeight() / 2 + 100, 20, WHITE);
-            DrawText("Kurt isen ESC atabilirsin", GetScreenWidth() / 2 - 100, GetScreenHeight() / 2 + 140, 20, WHITE);
+            DrawTextCenter("Beceriksizsin", screenX, screenY - 50, 20, RED);
+            DrawTextCenter("Senin yuzunden kurtler bagimsizlasip isyan cikartti ve", screenX, screenY, 20, WHITE);
+            DrawTextCenter("baskent Ankara dustu, Allah belani versin.", screenX, screenY + 25, 20, WHITE);
+            DrawTextCenter("Adam gibi oynayacaksan R'ye bas", screenX, screenY + 100, 20, WHITE);
+            DrawTextCenter("Kurt isen ESC atabilirsin", screenX, screenY + 125, 20, WHITE);
     
             if (IsKeyPressed(KEY_R)) {
                 player.init();
@@ -144,14 +158,54 @@ int main() {
                 return 0;
             }
         } else if (gameState == WIN) {
-            DrawText("Helal Olsun!", GetScreenWidth() / 2 - 50, GetScreenHeight() / 2 - 50, 20, GREEN);
-            DrawText("Senin sayende xtinfirev ve kurtler dalgayi aldi!", GetScreenWidth() / 2 - 200, GetScreenHeight() / 2, 20, WHITE);
-            DrawText("Artik Turkiye Cumhuriyeti cok daha mutlu bir devlet olabilir", GetScreenWidth() / 2 - 250, GetScreenHeight() / 2 + 20, 20, WHITE);
-            DrawText("YASASIN TURKIYE CUMHURIYETI", GetScreenWidth() / 2 - 150, GetScreenHeight() / 2 + 45, 20, RED);
-            DrawText("Kurdistani tekrar bombalamak icin R'ye bas", GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 100, 20, WHITE);
-            DrawText("Mutlu bir sekilde ayrilmak icin ESC'ye bas", GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 140, 20, WHITE);
-    
+            DrawTextCenter("Helal Olsun!", screenX, screenY - 50, 20, GREEN);
+            DrawTextCenter("Senin sayende xtinfirev ve kurtler dalgayi aldi!", screenX, screenY, 20, WHITE);
+            DrawTextCenter("Artik Turkiye Cumhuriyeti cok daha mutlu bir devlet olabilir", screenX, screenY + 25, 20, WHITE);
+            DrawTextCenter("YASASIN TURKIYE CUMHURIYETI", screenX, screenY + 50, 20, RED);
+            DrawTextCenter("Kurdistani tekrar bombalamak icin R'ye bas", screenX, screenY + 100, 20, WHITE);
+            DrawTextCenter("Mutlu bir sekilde ayrilmak icin ESC'ye bas", screenX, screenY + 125, 20, WHITE);
+
             if (IsKeyPressed(KEY_R)) {
+                player.init();
+                boss.init();
+                bossAttacks.clear();
+
+                gameState = PLAYING;
+            }
+
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                CloseWindow();
+                return 0;
+            }
+        } else if (gameState == MAIN_MENU) {
+            DrawTextCenter("Kurdistan Bombalayici", screenX, screenY - 100, 20, WHITE);
+            DrawTextCenter("Bu bir oyun projesidir tamamiyla eglence amaciyla uretilmistir", screenX, screenY - 75, 20, GRAY);
+            // select difficulty
+            DrawTextCenter("Zorluk Seçin", screenX, screenY + 25, 20, WHITE);
+            DrawTextCenter("1. Kurt vatandas", screenX, screenY + 50, 20, GREEN);
+            DrawTextCenter("2. Turk vatandas", screenX, screenY + 75, 20, YELLOW);
+            DrawTextCenter("3. ULKUCU VATANDAS", screenX, screenY + 100, 20, DARKRED);
+
+            // draw a (-) to indicate the current difficulty
+            if (currentDifficulty == EASY) {
+                DrawTextCenter("-", screenX - 95, screenY + 50, 20, GREEN);
+            } else if (currentDifficulty == NORMAL) {
+                DrawTextCenter("-", screenX - 100, screenY + 75, 20, YELLOW);
+            } else if (currentDifficulty == HARD) {
+                DrawTextCenter("-", screenX - 125, screenY + 100, 20, DARKRED);
+            }
+
+            DrawTextCenter("Cikmak icin ESC'ye bas", screenX, screenY + 150, 20, WHITE);
+            DrawTextCenter("Secim yapmak icin 1, 2 veya 3'e bas", screenX, screenY + 175, 20, GRAY);
+
+            if (IsKeyPressed(KEY_ONE) || IsKeyPressed(KEY_KP_1) || IsKeyPressed(KEY_TWO) || IsKeyPressed(KEY_KP_2) || IsKeyPressed(KEY_THREE) || IsKeyPressed(KEY_KP_3)) {
+                if (IsKeyPressed(KEY_ONE) || IsKeyPressed(KEY_KP_1)) {
+                    currentDifficulty = EASY;
+                } else if (IsKeyPressed(KEY_TWO) || IsKeyPressed(KEY_KP_2)) {
+                    currentDifficulty = NORMAL;
+                } else if (IsKeyPressed(KEY_THREE) || IsKeyPressed(KEY_KP_3)) {
+                    currentDifficulty = HARD;
+                }
                 player.init();
                 boss.init();
                 bossAttacks.clear();

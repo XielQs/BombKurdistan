@@ -1,4 +1,5 @@
 #include "BossAttack.h"
+#include "Difficulty.h"
 #include <raymath.h>
 #include <algorithm>
 
@@ -18,7 +19,8 @@ BossAttack::BossAttack(Vector2 position, AttackSize size):
     explodeTime(0.f),
     exploded(false)
 {
-    explodeTime = GetTime() + ((size == AttackSize::SMALL) ? 0.5f : (size == AttackSize::MEDIUM) ? 1.0f : 1.5f);
+    float factor = (currentDifficulty == EASY) ? 2.0f : (currentDifficulty == NORMAL) ? 1.f : 0.5f;
+    explodeTime = GetTime() + ((size == AttackSize::SMALL) ? 0.5f : (size == AttackSize::MEDIUM) ? 1.0f : 1.5f) * factor;
 }
 
 void BossAttack::draw()
@@ -68,7 +70,8 @@ void BossAttack::explode()
     exploded = true;
     float radius = getAttackSizeRadius(size);
     int bulletCount = (size == AttackSize::SMALL) ? 8 : (size == AttackSize::MEDIUM) ? 10 : 12;
-    int bulletSpeed = (size == AttackSize::SMALL) ? 6 : (size == AttackSize::MEDIUM) ? 4 : 3;
+    float factor = (currentDifficulty == EASY) ? 0.8f : (currentDifficulty == NORMAL) ? 1.f : 1.5f;
+    int bulletSpeed = ((size == AttackSize::SMALL) ? 6 : (size == AttackSize::MEDIUM) ? 4 : 3) * factor;
     float angleStep = 360.0f / bulletCount;
 
     for (int i = 0; i < bulletCount; i++) {
