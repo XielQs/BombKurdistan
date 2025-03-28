@@ -7,13 +7,14 @@
 class Boss
 {
 public:
-    Boss(Texture2D texture);
+    Boss(Texture2D texture, Texture2D lareiTexture);
     void draw();
     void update();
     void init();
     void takeDamage(float damage);
     float health;
     Texture2D texture;
+    Texture2D lareiTexture;
 };
 
 #endif // BOSS_H

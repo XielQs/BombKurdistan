@@ -9,8 +9,8 @@ Player::Player(Texture2D texture):
 
 void Player::init() {
     health = PLAYER_HEALTH;
-    position.x = GetScreenWidth() / 2;
-    position.y = GetScreenHeight() / 2;
+    position.x = GetScreenWidth() / 2.f;
+    position.y = GetScreenHeight() / 2.f;
     previousPosition.x = position.x;
     previousPosition.y = position.y;
     velocity.x = 0;

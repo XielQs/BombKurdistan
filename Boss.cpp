@@ -1,7 +1,8 @@
 #include "Boss.h"
 
-Boss::Boss(Texture2D texture):
-    texture(texture)
+Boss::Boss(Texture2D texture, Texture2D lareiTexture):
+    texture(texture),
+    lareiTexture(lareiTexture)
 {
     init();
 }
@@ -17,6 +18,7 @@ void Boss::draw()
     Rectangle dest = {0.f, 0.f, GetScreenWidth() - 0.f, BOSS_HEIGHT};
 
     DrawTexturePro(texture, src, dest, (Vector2){0.f, 0.f}, 0.0f, WHITE);
+    DrawTexture(lareiTexture, GetScreenWidth() - lareiTexture.width - 50.f, 0, WHITE);
 }
 
 void Boss::update()

@@ -2,7 +2,6 @@
 #define SCREEN_HEIGHT 600
 #define ATTACK_OFFSET 150
 #include <raylib.h>
-#include <iostream>
 #include "Player.h"
 #include "Boss.h"
 #include "BossAttack.h"
@@ -20,6 +19,7 @@ enum GameState {
     WIN
 };
 GameState gameState = PLAYING;
+bool isMuted = false;
 
 void createAttack(Player& player) {
     AttackSize size = (AttackSize)(GetRandomValue(0, 2));
@@ -50,14 +50,15 @@ int main() {
     Texture2D bossTexture = LoadTexture("assets/boss.png");
     Texture2D playerTexture = LoadTexture("assets/player.png");
     Texture2D bombTexture = LoadTexture("assets/bomb.png");
+    Texture2D lareiTexture = LoadTexture("assets/larei.png");
     Sound bgMusic = LoadSound("assets/bg_music.mp3");
 
     Player player(playerTexture);
-    Boss boss(bossTexture);
+    Boss boss(bossTexture, lareiTexture);
     while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(Color{ 10, 10, 10, 255 });
-        if (gameState == PLAYING) {
+        if (gameState == PLAYING && !isMuted) {
             if (!IsSoundPlaying(bgMusic)) {
                 PlaySound(bgMusic);
             }
@@ -65,6 +66,14 @@ int main() {
             StopSound(bgMusic);
         }
         if (gameState == PLAYING) {
+            if (IsKeyPressed(KEY_M)) {
+                isMuted = !isMuted;
+                if (isMuted) {
+                    StopSound(bgMusic);
+                } else {
+                    PlaySound(bgMusic);
+                }
+            }
             for (size_t i = 0; i < bossAttacks.size(); ++i) {
                 BossAttack& attack = bossAttacks[i];
                 attack.update(player);
