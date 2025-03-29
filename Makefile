@@ -1,4 +1,4 @@
-NAME		= bombkurdistan
+NAME		  = bombkurdistan
 
 INC_DIR		= inc
 LIB_DIR		= lib
@@ -6,13 +6,13 @@ SRC_DIR		= src
 BUILD_DIR	= build
 
 RAYLIB_SRC	= $(LIB_DIR)/raylib/src
-RAYLIB		= $(RAYLIB_SRC)/libraylib.a
+RAYLIB		  = $(RAYLIB_SRC)/libraylib.a
 
-CXX			= clang++
+CXX			  = clang++
 CXXFLAGS	= -Wall -Wextra -O0 -g3 -ggdb3 -std=c++23 -MMD -MP \
 			-I$(INC_DIR) -I$(RAYLIB_SRC)
 LDFLAGS		= -L$(RAYLIB_SRC) -lraylib
-RM			= rm -rf
+RM			  = rm -rf
 
 SRCS		= $(wildcard $(SRC_DIR)/*.cpp)
 OBJS		= $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRCS))

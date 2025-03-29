@@ -1,2 +1,5 @@
 .vscode
 build
+compile_commands.json
+bombkurdistan*
+.cache
