@@ -1,7 +1,8 @@
-#ifndef BOSSATTACK_H
-#define BOSSATTACK_H
+#ifndef BOSSATTACK_HPP
+#define BOSSATTACK_HPP
 #include <raylib.h>
 #include <vector>
+#include <raymath.h>
 #include "Player.hpp"
 #include "Bullet.hpp"
 
@@ -22,10 +23,10 @@ public:
     std::vector<Bullet> bullets;
 
     BossAttack(Vector2 position, AttackSize size);
-    void draw();
+    void draw() const;
     void update(Player& player);
     bool isAlive();
     void explode();
 };
 
-#endif // BOSSATTACK_H
+#endif // BOSSATTACK_HPP

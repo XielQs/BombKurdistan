@@ -7,7 +7,7 @@ Bomb::Bomb(Texture2D texture, Vector2 position):
 {
 }
 
-void Bomb::draw()
+void Bomb::draw() const
 {
     Rectangle src = { 0, 0, texture.width - 0.f, texture.height - 0.f };
     Rectangle dest = { position.x, position.y, 40, 40 };

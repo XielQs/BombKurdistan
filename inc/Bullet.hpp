@@ -1,5 +1,5 @@
-#ifndef BULLET_H
-#define BULLET_H
+#ifndef BULLET_HPP
+#define BULLET_HPP
 #define BULLET_SIZE 5
 #include <raylib.h>
 
@@ -10,9 +10,9 @@ public:
     float speed;
     bool active;
 
-    Bullet(Vector2 pos, Vector2 dir, float spd);
+    Bullet(Vector2 position, Vector2 direction, float speed);
     void update();
-    void draw();
+    void draw() const;
 };
 
-#endif // BULLET_H
+#endif // BULLET_HPP

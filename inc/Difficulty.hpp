@@ -1,7 +1,9 @@
-#ifndef DIFFICULTY_H
-#define DIFFICULTY_H
+#ifndef DIFFICULTY_HPP
+#define DIFFICULTY_HPP
 
 enum Difficulty { EASY, NORMAL, HARD };
 extern Difficulty currentDifficulty;
 
-#endif // DIFFICULTY_H
+const char* getDifficultyName(Difficulty difficulty);
+
+#endif // DIFFICULTY_HPP

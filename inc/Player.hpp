@@ -1,5 +1,5 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef PLAYER_HPP
+#define PLAYER_HPP
 #define PLAYER_HEALTH 100
 #define SCREEN_PADDING 20
 #define PLAYER_SIZE 24
@@ -21,4 +21,4 @@ public:
     Vector2 velocity;
 };
 
-#endif // PLAYER_H
+#endif // PLAYER_HPP

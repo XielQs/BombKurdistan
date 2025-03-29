@@ -38,8 +38,6 @@ void Player::update()
     if (position.y < BOSS_HEIGHT + SCREEN_PADDING) position.y = BOSS_HEIGHT + SCREEN_PADDING;
     if (position.y > GetScreenHeight() - texture.height) position.y = GetScreenHeight() - texture.height;
 
-    // show player health
-    DrawText(TextFormat("Health: %.0f", health), 10, 10, 20, WHITE);
     velocity.x = position.x - previousPosition.x;
     velocity.y = position.y - previousPosition.y;
 }

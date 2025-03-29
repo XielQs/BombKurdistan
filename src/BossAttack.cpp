@@ -1,6 +1,5 @@
 #include "BossAttack.hpp"
 #include "Difficulty.hpp"
-#include <raymath.h>
 #include <algorithm>
 
 float getAttackSizeRadius(AttackSize size)
@@ -23,14 +22,14 @@ BossAttack::BossAttack(Vector2 position, AttackSize size):
     explodeTime = GetTime() + ((size == AttackSize::SMALL) ? 0.5f : (size == AttackSize::MEDIUM) ? 1.0f : 1.5f) * factor;
 }
 
-void BossAttack::draw()
+void BossAttack::draw() const
 {
     if (!exploded) {
         Color color = (size == AttackSize::SMALL) ? RED : (size == AttackSize::MEDIUM) ? YELLOW : BLUE;
         float radius = getAttackSizeRadius(size);
         DrawCircleLines(position.x, position.y, radius, color);
     }
-    for (Bullet& bullet : bullets) {
+    for (const Bullet& bullet : bullets) {
         bullet.draw();
     }
 }
@@ -68,15 +67,14 @@ void BossAttack::update(Player& player)
 void BossAttack::explode()
 {
     exploded = true;
-    float radius = getAttackSizeRadius(size);
     int bulletCount = (size == AttackSize::SMALL) ? 8 : (size == AttackSize::MEDIUM) ? 10 : 12;
-    float factor = (currentDifficulty == EASY) ? 0.8f : (currentDifficulty == NORMAL) ? 1.f : 1.5f;
+    float factor = (currentDifficulty == EASY) ? 0.8 : (currentDifficulty == NORMAL) ? 1. : 1.5;
     int bulletSpeed = ((size == AttackSize::SMALL) ? 6 : (size == AttackSize::MEDIUM) ? 4 : 3) * factor;
     float angleStep = 360.0f / bulletCount;
 
     for (int i = 0; i < bulletCount; i++) {
         float angle = angleStep * i;
         Vector2 dir = { cosf(DEG2RAD * angle), sinf(DEG2RAD * angle) };
-        bullets.push_back(Bullet({ position.x + dir.x * radius, position.y + dir.y * radius }, dir, bulletSpeed));
+        bullets.push_back(Bullet({ position.x + dir.x, position.y + dir.y }, dir, bulletSpeed));
     }
 }

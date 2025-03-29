@@ -23,7 +23,7 @@ void Boss::draw()
 
 void Boss::update()
 {
-    DrawText(TextFormat("Boss Health: %.0f", health), 10, 40, 20, BLACK);
+    // idk
 }
 
 void Boss::takeDamage(float damage)

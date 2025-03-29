@@ -1,5 +1,5 @@
-#ifndef BOSS_H
-#define BOSS_H
+#ifndef BOSS_HPP
+#define BOSS_HPP
 #define BOSS_HEALTH 100
 #define BOSS_HEIGHT 200
 #include <raylib.h>
@@ -17,4 +17,4 @@ public:
     Texture2D lareiTexture;
 };
 
-#endif // BOSS_H
+#endif // BOSS_HPP

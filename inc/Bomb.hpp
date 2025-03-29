@@ -1,5 +1,5 @@
-#ifndef BOMB_H
-#define BOMB_H
+#ifndef BOMB_HPP
+#define BOMB_HPP
 #define BOMB_DAMAGE 20
 #include <raylib.h>
 #include "Player.hpp"
@@ -9,7 +9,7 @@ class Bomb
 {
 public:
     Bomb(Texture2D texture, Vector2 position);
-    void draw();
+    void draw() const;
     void update(Player& player, Boss& boss);
     bool isAlive();
     void explode(Boss& boss);
@@ -18,4 +18,4 @@ public:
     Texture2D texture;
 };
 
-#endif // BOMB_H
+#endif // BOMB_HPP
