@@ -1,5 +1,5 @@
-#include "Player.h"
-#include "Boss.h"
+#include "Player.hpp"
+#include "Boss.hpp"
 
 Player::Player(Texture2D texture):
     texture(texture)

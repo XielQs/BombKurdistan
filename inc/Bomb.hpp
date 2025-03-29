@@ -2,8 +2,8 @@
 #define BOMB_H
 #define BOMB_DAMAGE 20
 #include <raylib.h>
-#include "Player.h"
-#include "Boss.h"
+#include "Player.hpp"
+#include "Boss.hpp"
 
 class Bomb
 {

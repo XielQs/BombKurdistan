@@ -1,3 +1,3 @@
-#include "Difficulty.h"
+#include "Difficulty.hpp"
 
 Difficulty currentDifficulty = NORMAL;

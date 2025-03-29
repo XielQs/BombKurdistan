@@ -1,4 +1,4 @@
-#include "Bomb.h"
+#include "Bomb.hpp"
 
 Bomb::Bomb(Texture2D texture, Vector2 position):
     position(position),
