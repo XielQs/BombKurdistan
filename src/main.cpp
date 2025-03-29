@@ -2,11 +2,11 @@
 #define SCREEN_HEIGHT 600
 #define ATTACK_OFFSET 150
 #include <raylib.h>
-#include "Player.h"
-#include "BossAttack.h"
-#include "Difficulty.h"
-#include "Boss.h"
-#include "Bomb.h"
+#include "Player.hpp"
+#include "BossAttack.hpp"
+#include "Difficulty.hpp"
+#include "Boss.hpp"
+#include "Bomb.hpp"
 #include <vector>
 #include <math.h>
 #define DARKRED (Color){ 139, 0, 0, 255 }

@@ -1,4 +1,4 @@
-#include "Boss.h"
+#include "Boss.hpp"
 
 Boss::Boss(Texture2D texture, Texture2D lareiTexture):
     texture(texture),

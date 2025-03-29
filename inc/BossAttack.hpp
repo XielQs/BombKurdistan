@@ -2,8 +2,8 @@
 #define BOSSATTACK_H
 #include <raylib.h>
 #include <vector>
-#include "Player.h"
-#include "Bullet.h"
+#include "Player.hpp"
+#include "Bullet.hpp"
 
 enum AttackSize
 {

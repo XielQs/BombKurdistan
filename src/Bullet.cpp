@@ -1,4 +1,4 @@
-#include "Bullet.h"
+#include "Bullet.hpp"
 
 Bullet::Bullet(Vector2 position, Vector2 direction, float speed)
     : position(position), direction(direction), speed(speed), active(true) {}

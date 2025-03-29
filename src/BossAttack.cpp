@@ -1,5 +1,5 @@
-#include "BossAttack.h"
-#include "Difficulty.h"
+#include "BossAttack.hpp"
+#include "Difficulty.hpp"
 #include <raymath.h>
 #include <algorithm>
 
