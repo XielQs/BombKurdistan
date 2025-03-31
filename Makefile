@@ -43,7 +43,7 @@ clean:
 
 fclean: clean
 	@$(MAKE) -C $(RAYLIB_SRC) clean
-	@$(MAKE) -C $(DISCORDRPC_SRC) fclean
+	@$(MAKE) -C $(DISCORDRPC_SRC) clean
 	@$(RM) $(NAME)
 
 re: fclean all
