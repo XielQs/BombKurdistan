@@ -24,7 +24,7 @@ https://github.com/user-attachments/assets/95879509-924b-4f56-b1af-2e562864e58d
 
 Bu oyunun yapilmasinda yardimci olan ve bana ilham veren kisilere tesekkur ederim:
 
-- [lareii](https://github.com/lareii)
+- [larei](https://github.com/lareii)
 - [kosero](https://github.com/kosero)
 - yesil asya
 

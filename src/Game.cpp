@@ -1,6 +1,5 @@
 #include "Game.hpp"
 #include "Difficulty.hpp"
-#include "discordactivity.h"
 #include "discordrpc.h"
 #include "raylib.h"
 #include <string.h>
@@ -30,10 +29,6 @@ Game::~Game() {
     CloseAudioDevice();
 }
 
-DiscordRPC discord;
-DiscordActivity activity;
-GameState lastGameState = PLAYING; // we set it to PLAYING because of Game::update()
-
 void Game::init() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Kurdistan Bombalayici");
     SetTargetFPS(60);
@@ -45,8 +40,8 @@ void Game::init() {
         TraceLog(LOG_ERROR, "Discord RPC failed to connect: %s", discord.lastError);
     } else {
         TraceLog(LOG_INFO, "Discord RPC connected successfully");
-        memset(&activity, 0, sizeof(activity));
-        activity.largeImageText = "Kurdistani Bombala";
+        memset(&discordActivity, 0, sizeof(discordActivity));
+        discordActivity.largeImageText = "Kurdistani Bombala";
     }
 
     bossTexture = LoadTexture("assets/boss.png");
@@ -76,10 +71,10 @@ void Game::update() {
     if (gameState == PLAYING) {
         if (lastGameState != PLAYING) {
             TraceLog(LOG_INFO, "Game started");
-            activity.state = getDifficultyName(currentDifficulty);
-            activity.details = "Kurdistani Bombaliyor";
-            activity.startTimestamp = timeStart / 1000;
-            DiscordRPC_setActivity(&discord, activity);
+            discordActivity.state = getDifficultyName(currentDifficulty);
+            discordActivity.details = "Kurdistani Bombaliyor";
+            discordActivity.startTimestamp = timeStart / 1000;
+            DiscordRPC_setActivity(&discord, discordActivity);
         }
 
         updateTimers();
@@ -115,26 +110,29 @@ void Game::update() {
     }
     if (gameState == MAIN_MENU) {
         if (lastGameState != MAIN_MENU) {
-            activity.state = "Ana menude";
-            activity.details = nullptr;
-            activity.startTimestamp = GetTime() / 1000;
-            DiscordRPC_setActivity(&discord, activity);
+            TraceLog(LOG_INFO, "Main menu");
+            discordActivity.state = "Ana menude";
+            discordActivity.details = nullptr;
+            discordActivity.startTimestamp = GetTime() / 1000;
+            DiscordRPC_setActivity(&discord, discordActivity);
         }
     }
     if (gameState == WIN) {
         if (lastGameState != WIN) {
-            activity.state = getDifficultyName(currentDifficulty);
-            activity.details = "Ankara kurtarildi!";
-            activity.startTimestamp = GetTime() / 1000;
-            DiscordRPC_setActivity(&discord, activity);
+            TraceLog(LOG_INFO, "Game won");
+            discordActivity.state = getDifficultyName(currentDifficulty);
+            discordActivity.details = "Ankara kurtarildi!";
+            discordActivity.startTimestamp = GetTime() / 1000;
+            DiscordRPC_setActivity(&discord, discordActivity);
         }
     }
     if (gameState == GAME_OVER) {
         if (lastGameState != GAME_OVER) {
-            activity.state = getDifficultyName(currentDifficulty);
-            activity.details = "Ankara dustu!";
-            activity.startTimestamp = GetTime() / 1000;
-            DiscordRPC_setActivity(&discord, activity);
+            TraceLog(LOG_INFO, "Game over");
+            discordActivity.state = getDifficultyName(currentDifficulty);
+            discordActivity.details = "Ankara dustu!";
+            discordActivity.startTimestamp = GetTime() / 1000;
+            DiscordRPC_setActivity(&discord, discordActivity);
         }
     }
     lastGameState = gameState;
@@ -164,21 +162,21 @@ void Game::draw() {
         boss->draw();
         player->draw();
 
-        // draw timer
         // we are using DrawText instead of drawTextCenter to avoid text scaling issues
+        // draw timer
         DrawText(TextFormat("Time: %s", formatTime()), SCREEN_WIDTH - 150, TEXT_HEIGHT - 10, 20, WHITE);
 
         // draw health bars
         DrawText(TextFormat("Health: %.0f", player->health), 10, TEXT_HEIGHT * 0.5, 20, WHITE);
         DrawText(TextFormat("Boss Health: %.0f", boss->health), 10, TEXT_HEIGHT * 1.8, 20, BLACK);
     } else if (gameState == GAME_OVER) {
-        drawTextCenter("Beceriksizsin", SCREEN_DRAW_X, SCREEN_DRAW_Y - TEXT_HEIGHT * 2, 20, RED);
+        drawTextCenter("Beceriksizsin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20, RED);
         drawTextCenter("Senin yuzunden kurtler bagimsizlasip isyan cikartti ve", SCREEN_DRAW_X, SCREEN_DRAW_Y, 20, WHITE);
         drawTextCenter("baskent Ankara dustu, Allah belani versin.", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT, 20, WHITE);
         drawTextCenter("Adam gibi oynayacaksan R'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 4, 20, WHITE);
         drawTextCenter("Kurt isen ESC atabilirsin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20, WHITE);
     } else if (gameState == WIN) {
-        drawTextCenter("Helal Olsun!", SCREEN_DRAW_X, SCREEN_DRAW_Y - TEXT_HEIGHT * 2, 20, GREEN);
+        drawTextCenter("Helal Olsun!", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20, GREEN);
         drawTextCenter("Senin sayende xtinfirev ve kurtler dalgayi aldi!", SCREEN_DRAW_X, SCREEN_DRAW_Y, 20, WHITE);
         drawTextCenter("Artik Turkiye Cumhuriyeti cok daha mutlu bir devlet olabilir", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT, 20, WHITE);
         drawTextCenter("YASASIN TURKIYE CUMHURIYETI!", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20, RED);
@@ -187,32 +185,52 @@ void Game::draw() {
         drawTextCenter(TextFormat("Bombalanan Sure: %s", formatTime()), SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, WHITE);
         drawTextCombined(SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20, "Oyun Modu:", WHITE, getDifficultyName(currentDifficulty), (currentDifficulty == EASY) ? GREEN : (currentDifficulty == NORMAL) ? YELLOW : DARKRED);
     } else if (gameState == MAIN_MENU) {
-        drawTextCenter("Kurdistan Bombalayici", SCREEN_DRAW_X, SCREEN_DRAW_Y - TEXT_HEIGHT * 4, 20, WHITE);
-        drawTextCenter("Bu bir oyun projesidir tamamiyla eglence amaciyla uretilmistir", SCREEN_DRAW_X, SCREEN_DRAW_Y - 75, 20, GRAY);
+        drawTextCenter("Kurdistan Bombalayici", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -4, 20, WHITE);
+        drawTextCenter("Bu bir oyun projesidir tamamiyla eglence amaciyla uretilmistir", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -3, 20, GRAY);
         // select difficulty
-        drawTextCenter("Zorluk Seçin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT, 20, WHITE);
-        drawTextCenter("1. Kurt vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20, GREEN);
-        drawTextCenter("2. Turk vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20, YELLOW);
-        drawTextCenter("3. ULKUCU VATANDAS", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 4, 20, DARKRED);
+        drawTextCenter("Zorluk Seçin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -1, 20, WHITE);
+        drawTextCenter("1. Kurt vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20, GREEN);
+        drawTextCenter("2. Turk vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20, YELLOW);
+        drawTextCenter("3. ULKUCU VATANDAS", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20, DARKRED);
 
         // draw a (-) to indicate the current difficulty
         if (currentDifficulty == EASY) {
-            drawTextCenter("-", SCREEN_DRAW_X - 95, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20, GREEN);
+            drawTextCenter("-", SCREEN_DRAW_X - 95, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20, GREEN);
         } else if (currentDifficulty == NORMAL) {
-            drawTextCenter("-", SCREEN_DRAW_X - 100, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20, YELLOW);
+            drawTextCenter("-", SCREEN_DRAW_X - 100, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20, YELLOW);
         } else if (currentDifficulty == HARD) {
-            drawTextCenter("-", SCREEN_DRAW_X - 125, SCREEN_DRAW_Y + TEXT_HEIGHT * 4, 20, DARKRED);
+            drawTextCenter("-", SCREEN_DRAW_X - 125, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20, DARKRED);
         }
 
-        drawTextCenter("Cikmak icin ESC'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 6, 20, WHITE);
-        drawTextCenter("Secim yapmak icin ok tuslarini ya da 1, 2 veya 3'u kullanabilirsin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, GRAY);
-        drawTextCenter("Oyuna baslamak icin SPACE veya ENTER'a bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20, GRAY);
+        drawTextCenter("Cikmak icin ESC'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20, WHITE);
+        drawTextCenter("Secim yapmak icin ok tuslarini ya da 1, 2 veya 3'u kullanabilirsin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 6, 20, GRAY);
+        drawTextCenter("Oyuna baslamak icin SPACE veya ENTER'a bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, GRAY);
+        drawTextCenter("Yapimcilar ve ozel tesekkurler icin F7'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20, GRAY);
 
         drawTextCenter("M ile sesi ac/kapat", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 10, 20, isMuted ? GRAY : WHITE);
 
         if (currentDifficulty == HARD) {
             drawTextCenter("sana guveniyoruz kaptan", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 11, 20, DARKRED);
         }
+    } else if (gameState == MENU_CREDITS) {
+        marqueeText("TesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurler", SCREEN_DRAW_Y + TEXT_HEIGHT * -8, 20, WHITE, 80.f);
+        drawTextCenter("Herkese ayri ayri tesekkurlerimi sunuyorum siz olmasaniz", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -6, 20, GRAY);
+        drawTextCenter("BombKurdistan projesi bu kadar gelisemezdi <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -5, 20, GRAY);
+        drawTextCenter("(dunyanin en iyi oyun projesi)", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -4, 20, GRAY);
+
+        drawTextCenter("larei <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20, WHITE);
+        drawTextCenter("kosero <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -1, 20, WHITE);
+        drawTextCenter("yesil asya <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 0, 20, WHITE);
+        drawTextCenter("toby fox <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20, WHITE);
+        
+        drawTextCenter("Dosya kaynakcasi:", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20, WHITE);
+        drawTextCenter("boss.png: wikipedia (goruntude oynadim azcik)", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 4, 20, GRAY);
+        drawTextCenter("bomb.png: stardew valley", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20, GRAY);
+        drawTextCenter("player.png: undertale", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 6, 20, GRAY);
+        drawTextCenter("bg_music.mp3: larei atmisti bir youtube videosundan alinti", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, GRAY);
+        drawTextCenter("larei.png: larei.", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20, GRAY);
+
+        drawTextCenter("Ana menu icin ESC'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 10, 20, WHITE);
     }
 
     EndDrawing();
@@ -259,6 +277,15 @@ void Game::handleInput() {
         }
         if (IsKeyPressed(KEY_DOWN)) {
             currentDifficulty = (Difficulty)((currentDifficulty + 1) % 3);
+        }
+        if (IsKeyPressed(KEY_F7)) {
+            setGameState(MENU_CREDITS);
+        }
+    }
+
+    if (gameState == MENU_CREDITS) {
+        if (IsKeyPressed(KEY_ESCAPE)) {
+            setGameState(MAIN_MENU);
         }
     }
 
@@ -343,6 +370,20 @@ void Game::drawTextCombined(float x, float y, float fontSize, const char* text1,
 
     DrawText(text1, startX, startY, fontSize, color1);
     DrawText(text2, startX + size1 + spaceWidth, startY, fontSize, color2);
+}
+
+void Game::marqueeText(const char* text, float y, float fontSize, Color color, float speed) {
+    static float x = 0;
+    int textWidth = MeasureText(text, fontSize);
+
+    x -= speed * GetFrameTime();
+
+    if (x < -textWidth) {
+        x += textWidth;
+    }
+
+    DrawText(text, (int)x, (int)y, (int)fontSize, color);
+    DrawText(text, (int)x + textWidth, (int)y, (int)fontSize, color);
 }
 
 const char* Game::formatTime() {

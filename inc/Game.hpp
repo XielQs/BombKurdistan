@@ -22,6 +22,7 @@ enum GameState {
     PLAYING,
     GAME_OVER,
     MAIN_MENU,
+    MENU_CREDITS,
     WIN
 };
 
@@ -40,6 +41,10 @@ public:
 
 private:
     GameState gameState;
+    // we set it to PLAYING as Game::update() needs to be called at least once with MAIN_MENU state
+    GameState lastGameState = PLAYING;
+    DiscordRPC discord;
+    DiscordActivity discordActivity;
     bool isMuted;
     float bombTimer;
     float attackTimer;
@@ -58,6 +63,7 @@ private:
     void createAttack();
     void drawTextCenter(const char* text, float x, float y, float fontSize, Color color);
     void drawTextCombined(float x, float y, float fontSize, const char* text1, Color color1, const char* text2, Color color2);
+    void marqueeText(const char* text, float y, float fontSize, Color color, float speed);
     const char* formatTime();
 };
 
