@@ -8,10 +8,13 @@ BUILD_DIR	= build
 RAYLIB_SRC	= $(LIB_DIR)/raylib/src
 RAYLIB		  = $(RAYLIB_SRC)/libraylib.a
 
+DISCORDRPC_SRC = $(LIB_DIR)/discordrpc
+DISCORDRPC	  = $(DISCORDRPC_SRC)/libdiscordrpc.a
+
 CXX			  = clang++
-CXXFLAGS	= -Wall -Wextra -O0 -g3 -ggdb3 -std=c++23 -MMD -MP \
-			-I$(INC_DIR) -I$(RAYLIB_SRC)
-LDFLAGS		= -L$(RAYLIB_SRC) -lraylib
+CXXFLAGS	= -Wall -Wextra -O3 -g3 -ggdb3 -std=c++23 -MMD -MP \
+			-I$(INC_DIR) -I$(RAYLIB_SRC) -I$(DISCORDRPC_SRC)/inc
+LDFLAGS		= -L$(RAYLIB_SRC) -lraylib -L$(DISCORDRPC_SRC)/build -ldiscordrpc
 RM			  = rm -rf
 
 SRCS		= $(wildcard $(SRC_DIR)/*.cpp)
@@ -23,13 +26,16 @@ all: $(NAME)
 $(RAYLIB):
 	@$(MAKE) -C $(RAYLIB_SRC) PLATFORM=PLATFORM_DESKTOP
 
+$(DISCORDRPC):
+	@$(MAKE) -C $(DISCORDRPC_SRC) lib
+
 $(BUILD_DIR):
 	@mkdir -p $@
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
 	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(NAME): $(OBJS) $(RAYLIB)
+$(NAME): $(OBJS) $(RAYLIB) $(DISCORDRPC)
 	@$(CXX) $(CXXFLAGS) $(OBJS) $(LDFLAGS) -o $@
 
 clean:
@@ -37,6 +43,7 @@ clean:
 
 fclean: clean
 	@$(MAKE) -C $(RAYLIB_SRC) clean
+	@$(MAKE) -C $(DISCORDRPC_SRC) fclean
 	@$(RM) $(NAME)
 
 re: fclean all

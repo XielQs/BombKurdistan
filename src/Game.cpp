@@ -1,6 +1,9 @@
 #include "Game.hpp"
 #include "Difficulty.hpp"
+#include "discordactivity.h"
+#include "discordrpc.h"
 #include "raylib.h"
+#include <string.h>
 #define DEBUG_MODE 1
 
 Game::Game():
@@ -27,11 +30,24 @@ Game::~Game() {
     CloseAudioDevice();
 }
 
+DiscordRPC discord;
+DiscordActivity activity;
+GameState lastGameState = PLAYING; // we set it to PLAYING because of Game::update()
+
 void Game::init() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Kurdistan Bombalayici");
     SetTargetFPS(60);
     SetExitKey(KEY_NULL); // disable ESC key
     InitAudioDevice();
+    DiscordRPC_init(&discord, "1356073834981097552", nullptr);
+
+    if (!discord.connected) {
+        TraceLog(LOG_ERROR, "Discord RPC failed to connect: %s", discord.lastError);
+    } else {
+        TraceLog(LOG_INFO, "Discord RPC connected successfully");
+        memset(&activity, 0, sizeof(activity));
+        activity.largeImageText = "Kurdistani Bombala";
+    }
 
     bossTexture = LoadTexture("assets/boss.png");
     playerTexture = LoadTexture("assets/player.png");
@@ -58,6 +74,14 @@ void Game::reset() {
 
 void Game::update() {
     if (gameState == PLAYING) {
+        if (lastGameState != PLAYING) {
+            TraceLog(LOG_INFO, "Game started");
+            activity.state = getDifficultyName(currentDifficulty);
+            activity.details = "Kurdistani Bombaliyor";
+            activity.startTimestamp = timeStart / 1000;
+            DiscordRPC_setActivity(&discord, activity);
+        }
+
         updateTimers();
         player->update();
         boss->update();
@@ -89,6 +113,31 @@ void Game::update() {
             setGameState(WIN);
         }
     }
+    if (gameState == MAIN_MENU) {
+        if (lastGameState != MAIN_MENU) {
+            activity.state = "Ana menude";
+            activity.details = nullptr;
+            activity.startTimestamp = GetTime() / 1000;
+            DiscordRPC_setActivity(&discord, activity);
+        }
+    }
+    if (gameState == WIN) {
+        if (lastGameState != WIN) {
+            activity.state = getDifficultyName(currentDifficulty);
+            activity.details = "Ankara kurtarildi!";
+            activity.startTimestamp = GetTime() / 1000;
+            DiscordRPC_setActivity(&discord, activity);
+        }
+    }
+    if (gameState == GAME_OVER) {
+        if (lastGameState != GAME_OVER) {
+            activity.state = getDifficultyName(currentDifficulty);
+            activity.details = "Ankara dustu!";
+            activity.startTimestamp = GetTime() / 1000;
+            DiscordRPC_setActivity(&discord, activity);
+        }
+    }
+    lastGameState = gameState;
 }
 
 void Game::draw() {
@@ -159,11 +208,7 @@ void Game::draw() {
         drawTextCenter("Secim yapmak icin ok tuslarini ya da 1, 2 veya 3'u kullanabilirsin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, GRAY);
         drawTextCenter("Oyuna baslamak icin SPACE veya ENTER'a bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20, GRAY);
 
-        if (isMuted) {
-            drawTextCenter("M ile sesi ac/kapat", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 10, 20, GRAY);
-        } else {
-            drawTextCenter("M ile sesi ac/kapat", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 10, 20, WHITE);
-        }
+        drawTextCenter("M ile sesi ac/kapat", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 10, 20, isMuted ? GRAY : WHITE);
 
         if (currentDifficulty == HARD) {
             drawTextCenter("sana guveniyoruz kaptan", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 11, 20, DARKRED);

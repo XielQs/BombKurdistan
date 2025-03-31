@@ -12,6 +12,7 @@
 #include <vector>
 #include <math.h>
 #include <raylib.h>
+#include <discordrpc.h>
 #include "Player.hpp"
 #include "Boss.hpp"
 #include "Bomb.hpp"

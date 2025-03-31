@@ -1,3 +1,6 @@
 [submodule "lib/raylib"]
 	path = lib/raylib
 	url = https://github.com/raysan5/raylib
+[submodule "lib/discordrpc"]
+	path = lib/discordrpc
+	url = https://github.com/XielQs/DiscordRPC
