@@ -34,6 +34,7 @@ void Game::init() {
     SetTargetFPS(60);
     SetExitKey(KEY_NULL); // disable ESC key
     InitAudioDevice();
+    SetWindowIcon(LoadImage("assets/icon.png"));
     DiscordRPC_init(&discord, "1356073834981097552", nullptr);
 
     if (!discord.connected) {

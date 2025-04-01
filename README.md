@@ -1,5 +1,7 @@
 # Kurdistan bombalayici
 
+![Icon](assets/icon.png)
+
 Undertale tarzinda kurdistani bombaladigimiz bir oyun, tamamiyla zevk ve eglence amacli yapilmistir. Lutfen ciddiye almayiniz basimi belaya sokmayin!
 
 Raylib kutuphanesini denemek istiyordum cok, raylibe baslamak isteyen varsa temel bir proje gibi dusunebilirsiniz.

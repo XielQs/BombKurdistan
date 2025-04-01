@@ -1,0 +1,37 @@
+name: Build and Deploy to Itch.io
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y make clang
+
+      - name: Build project
+        run: make -j
+
+      - name: Install butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/latest
+          unzip butler.zip
+          chmod +x butler
+          sudo mv butler /usr/local/bin/
+
+      - name: Authenticate Butler
+        run: butler login
+        env:
+          BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
+
+      - name: Upload to Itch.io
+        run: butler push bombkurdistan xielq/bomb-kurdistan:linux
+        env:
+          BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
