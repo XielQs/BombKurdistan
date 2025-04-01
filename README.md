@@ -16,7 +16,7 @@ make -j
 
 ## Run
 
-`./build/bombkurdistan` ile calistirabilirsiniz su anlik sadece amd64 linuxde test ettim windowsda calisiyor mu bilmiyorum ama make kullanmakta basarilar :D
+`./bombkurdistan` ile calistirabilirsiniz su anlik sadece amd64 linuxde test ettim windowsda calisiyor mu bilmiyorum ama make kullanmakta basarilar :D
 
 ## Gameplay
 
