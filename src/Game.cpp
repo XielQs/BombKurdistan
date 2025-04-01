@@ -258,6 +258,7 @@ void Game::draw() {
 }
 
 void Game::handleInput() {
+    // gamepad Square button
     if (IsKeyPressed(KEY_M) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
         isMuted = !isMuted;
         if (isMuted) {
@@ -268,6 +269,7 @@ void Game::handleInput() {
     }
 
     if (gameState == PLAYING) {
+        // gamepad Circle button
         if (IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
             TraceLog(LOG_INFO, "Game paused");
             setGameState(MAIN_MENU);
@@ -285,6 +287,7 @@ void Game::handleInput() {
         if (IsKeyPressed(KEY_ONE)) currentDifficulty = EASY;
         if (IsKeyPressed(KEY_TWO)) currentDifficulty = NORMAL;
         if (IsKeyPressed(KEY_THREE)) currentDifficulty = HARD;
+        // gamepad Circle button
         if (IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
             CloseWindow();
             exit(0); // using exit(0) because if we don't, the game will crash idk
@@ -293,28 +296,34 @@ void Game::handleInput() {
             reset();
             setGameState(PLAYING);
         }
+        // gamepad Dpad up
         if (IsKeyPressed(KEY_UP) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) {
             currentDifficulty = (Difficulty)((currentDifficulty + 2) % 3);
         }
+        // gamepad Dpad down
         if (IsKeyPressed(KEY_DOWN) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) {
             currentDifficulty = (Difficulty)((currentDifficulty + 1) % 3);
         }
+        // gamepad ps button
         if (IsKeyPressed(KEY_F7) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_MIDDLE)) {
             setGameState(MENU_CREDITS);
         }
     }
 
     if (gameState == MENU_CREDITS) {
+        // gamepad Circle button
         if (IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
             setGameState(MAIN_MENU);
         }
     }
 
     if (gameState == WIN || gameState == GAME_OVER) {
-        if (IsKeyPressed(KEY_R) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_UP)) {
+        // gamepad X button
+        if (IsKeyPressed(KEY_R) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
             reset();
             setGameState(PLAYING);
         }
+        // gamepad Circle button
         if (IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
             CloseWindow();
             exit(0); // using exit(0) because if we don't, the game will crash idk

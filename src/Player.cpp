@@ -30,6 +30,7 @@ void Player::draw()
 void Player::update()
 {
     previousPosition = position;
+    // update player position
     if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) position.y -= PLAYER_SPEED;
     if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) position.y += PLAYER_SPEED;
     if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_LEFT)) position.x -= PLAYER_SPEED;
@@ -55,6 +56,7 @@ void Player::update()
 
 void Player::takeDamage(float damage)
 {
+    // we can't use vibration because it doesn't work on GLFW
     // if (IsGamepadAvailable(0))
     //     SetGamepadVibration(0, 0.5f, 0.5f, 0.5f);
     health -= damage;

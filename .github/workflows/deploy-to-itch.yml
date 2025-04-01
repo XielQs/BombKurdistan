@@ -21,6 +21,9 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      - name: Enable SSH for debugging
+        uses: mxschmitt/action-tmate@v3
+
       - name: Install dependencies
         run: sudo apt update && sudo apt install -y make clang xorg-dev libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libgl1-mesa-dev
 
