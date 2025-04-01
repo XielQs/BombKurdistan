@@ -40,7 +40,14 @@ jobs:
         env:
           BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
 
+      - name: Zip project
+        run: |
+          mkdir -p dist
+          cp -r assets bombkurdistan dist/
+          cd dist
+          zip -r ../bombkurdistan.zip .
+
       - name: Upload to Itch.io
-        run: butler push bombkurdistan xielq/bomb-kurdistan:linux
+        run: butler push bombkurdistan.zip xielq/bomb-kurdistan:linux
         env:
           BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
