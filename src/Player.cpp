@@ -1,5 +1,7 @@
 #include "Player.hpp"
 #include "Boss.hpp"
+#include "raylib.h"
+#include <cmath>
 
 Player::Player(Texture2D texture):
     texture(texture)
@@ -28,10 +30,19 @@ void Player::draw()
 void Player::update()
 {
     previousPosition = position;
-    if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) position.y -= PLAYER_SPEED;
-    if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) position.y += PLAYER_SPEED;
-    if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) position.x -= PLAYER_SPEED;
-    if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) position.x += PLAYER_SPEED;
+    if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) position.y -= PLAYER_SPEED;
+    if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) position.y += PLAYER_SPEED;
+    if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_LEFT)) position.x -= PLAYER_SPEED;
+    if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_RIGHT)) position.x += PLAYER_SPEED;
+
+    // add gamepad support
+    if (IsGamepadAvailable(0)) {
+        Vector2 gamepadAxis = { GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X), GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_Y) };
+        if (fabs(gamepadAxis.x) > 0.1f || fabs(gamepadAxis.y) > 0.1f) {
+            position.x += gamepadAxis.x * PLAYER_SPEED;
+            position.y += gamepadAxis.y * PLAYER_SPEED;
+        }
+    }
 
     if (position.x < SCREEN_PADDING) position.x = SCREEN_PADDING;
     if (position.x > GetScreenWidth() - SCREEN_PADDING * 2) position.x = GetScreenWidth() - SCREEN_PADDING * 2;
@@ -44,6 +55,8 @@ void Player::update()
 
 void Player::takeDamage(float damage)
 {
+    // if (IsGamepadAvailable(0))
+    //     SetGamepadVibration(0, 0.5f, 0.5f, 0.5f);
     health -= damage;
     if (health < 0) health = 0;
 }

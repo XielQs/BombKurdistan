@@ -1,5 +1,6 @@
 #include "Game.hpp"
 #include "Difficulty.hpp"
+#include "discordeventhandlers.h"
 #include "discordrpc.h"
 #include "raylib.h"
 #include <string.h>
@@ -35,13 +36,28 @@ void Game::init() {
     SetExitKey(KEY_NULL); // disable ESC key
     InitAudioDevice();
     SetWindowIcon(LoadImage("assets/icon.png"));
-    DiscordRPC_init(&discord, "1356073834981097552", nullptr);
+    DiscordEventHandlers discordHandlers;
+    memset(&discordHandlers, 0, sizeof(discordHandlers));
+    memset(&discordActivity, 0, sizeof(discordActivity));
+    discordHandlers.disconnected = [](bool wasError) {
+        if (wasError) {
+            TraceLog(LOG_ERROR, "Discord RPC disconnected with error");
+        } else {
+            TraceLog(LOG_INFO, "Discord RPC disconnected");
+        }
+    };
+    discordHandlers.error = [](int errorCode, const char* message) {
+        TraceLog(LOG_ERROR, "Discord RPC error: %d - %s", errorCode, message);
+    };
+    discordHandlers.ready = [](const DiscordUser* user) {
+        TraceLog(LOG_INFO, "Discord RPC ready: %s", user->username);
+    };
+    DiscordRPC_init(&discord, "1356073834981097552", &discordHandlers);
 
     if (!discord.connected) {
-        TraceLog(LOG_ERROR, "Discord RPC failed to connect: %s", discord.lastError);
+        TraceLog(LOG_ERROR, "Discord RPC failed to connect: %s", discord.last_error);
     } else {
         TraceLog(LOG_INFO, "Discord RPC connected successfully");
-        memset(&discordActivity, 0, sizeof(discordActivity));
         discordActivity.largeImageText = "Kurdistani Bombala";
     }
 
@@ -75,7 +91,8 @@ void Game::update() {
             discordActivity.state = getDifficultyName(currentDifficulty);
             discordActivity.details = "Kurdistani Bombaliyor";
             discordActivity.startTimestamp = timeStart / 1000;
-            DiscordRPC_setActivity(&discord, discordActivity);
+            if (discord.connected)
+                DiscordRPC_setActivity(&discord, &discordActivity);
         }
 
         updateTimers();
@@ -115,7 +132,8 @@ void Game::update() {
             discordActivity.state = "Ana menude";
             discordActivity.details = nullptr;
             discordActivity.startTimestamp = GetTime() / 1000;
-            DiscordRPC_setActivity(&discord, discordActivity);
+            if (discord.connected)
+                DiscordRPC_setActivity(&discord, &discordActivity);
         }
     }
     if (gameState == WIN) {
@@ -124,7 +142,8 @@ void Game::update() {
             discordActivity.state = getDifficultyName(currentDifficulty);
             discordActivity.details = "Ankara kurtarildi!";
             discordActivity.startTimestamp = GetTime() / 1000;
-            DiscordRPC_setActivity(&discord, discordActivity);
+            if (discord.connected)
+                DiscordRPC_setActivity(&discord, &discordActivity);
         }
     }
     if (gameState == GAME_OVER) {
@@ -133,7 +152,8 @@ void Game::update() {
             discordActivity.state = getDifficultyName(currentDifficulty);
             discordActivity.details = "Ankara dustu!";
             discordActivity.startTimestamp = GetTime() / 1000;
-            DiscordRPC_setActivity(&discord, discordActivity);
+            if (discord.connected)
+                DiscordRPC_setActivity(&discord, &discordActivity);
         }
     }
     lastGameState = gameState;
@@ -238,7 +258,7 @@ void Game::draw() {
 }
 
 void Game::handleInput() {
-    if (IsKeyPressed(KEY_M)) {
+    if (IsKeyPressed(KEY_M) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
         isMuted = !isMuted;
         if (isMuted) {
             StopSound(bgMusic);
@@ -248,7 +268,7 @@ void Game::handleInput() {
     }
 
     if (gameState == PLAYING) {
-        if (IsKeyPressed(KEY_ESCAPE)) {
+        if (IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
             TraceLog(LOG_INFO, "Game paused");
             setGameState(MAIN_MENU);
             return;
@@ -265,37 +285,37 @@ void Game::handleInput() {
         if (IsKeyPressed(KEY_ONE)) currentDifficulty = EASY;
         if (IsKeyPressed(KEY_TWO)) currentDifficulty = NORMAL;
         if (IsKeyPressed(KEY_THREE)) currentDifficulty = HARD;
-        if (IsKeyPressed(KEY_ESCAPE)) {
+        if (IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
             CloseWindow();
             exit(0); // using exit(0) because if we don't, the game will crash idk
         }
-        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE)) {
+        if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
             reset();
             setGameState(PLAYING);
         }
-        if (IsKeyPressed(KEY_UP)) {
+        if (IsKeyPressed(KEY_UP) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) {
             currentDifficulty = (Difficulty)((currentDifficulty + 2) % 3);
         }
-        if (IsKeyPressed(KEY_DOWN)) {
+        if (IsKeyPressed(KEY_DOWN) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) {
             currentDifficulty = (Difficulty)((currentDifficulty + 1) % 3);
         }
-        if (IsKeyPressed(KEY_F7)) {
+        if (IsKeyPressed(KEY_F7) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_MIDDLE)) {
             setGameState(MENU_CREDITS);
         }
     }
 
     if (gameState == MENU_CREDITS) {
-        if (IsKeyPressed(KEY_ESCAPE)) {
+        if (IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
             setGameState(MAIN_MENU);
         }
     }
 
     if (gameState == WIN || gameState == GAME_OVER) {
-        if (IsKeyPressed(KEY_R)) {
+        if (IsKeyPressed(KEY_R) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_UP)) {
             reset();
             setGameState(PLAYING);
         }
-        if (IsKeyPressed(KEY_ESCAPE)) {
+        if (IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
             CloseWindow();
             exit(0); // using exit(0) because if we don't, the game will crash idk
         }

@@ -1,7 +1,7 @@
 #ifndef BOMB_HPP
 #define BOMB_HPP
 #define BOMB_DAMAGE 20
-#include <raylib.h>
+#include "raylib.h"
 #include "Player.hpp"
 #include "Boss.hpp"
 

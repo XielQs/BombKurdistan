@@ -1,7 +1,7 @@
 #ifndef BULLET_HPP
 #define BULLET_HPP
 #define BULLET_SIZE 5
-#include <raylib.h>
+#include "raylib.h"
 
 class Bullet {
 public:

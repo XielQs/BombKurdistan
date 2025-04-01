@@ -2,7 +2,7 @@
 #define BOSS_HPP
 #define BOSS_HEALTH 100
 #define BOSS_HEIGHT 200
-#include <raylib.h>
+#include "raylib.h"
 
 class Boss
 {
