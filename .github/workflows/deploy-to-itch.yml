@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'src/**'
+      - 'Makefile'
+      - 'assets/**'
 
 jobs:
   build-and-deploy:
@@ -17,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install dependencies
-        run: sudo apt update && sudo apt install -y make clang
+        run: sudo apt update && sudo apt install -y make clang xorg-dev libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libgl1-mesa-dev
 
       - name: Build project
         run: make -j
