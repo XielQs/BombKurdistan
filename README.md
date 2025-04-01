@@ -1,6 +1,6 @@
 # Kurdistan bombalayici
 
-![Icon](assets/icon.png)
+<img src="assets/icon.png" width="300" height="300" alt="bombkurdistan"/>
 
 Undertale tarzinda kurdistani bombaladigimiz bir oyun, tamamiyla zevk ve eglence amacli yapilmistir. Lutfen ciddiye almayiniz basimi belaya sokmayin!
 
