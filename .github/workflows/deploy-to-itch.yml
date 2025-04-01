@@ -9,6 +9,7 @@ on:
       - 'Makefile'
       - '.github/workflows/deploy-to-itch.yml'
       - 'assets/**'
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
