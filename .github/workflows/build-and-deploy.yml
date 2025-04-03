@@ -1,0 +1,92 @@
+name: Build and Deploy to Itch.io and GitHub Releases
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'src/**'
+      - 'Makefile'
+      - '.github/workflows/build-and-deploy.yml'
+      - 'assets/**'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install dependencies (Linux)
+        run: sudo apt update && sudo apt install -y make cmake clang xorg-dev libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libgl1-mesa-dev libjansson-dev zip unzip
+
+      - name: Build Linux version
+        run: make -j
+
+      - name: Install MinGW for Windows cross-compilation
+        run: sudo apt install -y mingw-w64
+
+      - name: Build Windows version
+        run: make windows -j
+
+      - name: Zip build
+        run: make zip
+
+      - name: Install butler
+        run: |
+          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          unzip butler.zip
+          chmod +x butler
+          sudo mv butler /usr/local/bin/
+
+      - name: Authenticate Butler
+        run: butler login
+        env:
+          BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
+
+      - name: Upload Linux build to Itch.io
+        run: butler push bombkurdistan_linux.zip xielq/bomb-kurdistan:linux
+        env:
+          BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
+
+      - name: Upload Windows build to Itch.io
+        run: butler push bombkurdistan_windows.zip xielq/bomb-kurdistan:windows
+        env:
+          BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: "Release v1.0.${{ github.run_number }}"
+          body: "Automated release for version v1.0.${{ github.run_number }}"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Linux ZIP to GitHub Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bombkurdistan_linux.zip
+          asset_name: bombkurdistan_linux.zip
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows ZIP to GitHub Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bombkurdistan_windows.zip
+          asset_name: bombkurdistan_windows.zip
+          asset_content_type: application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

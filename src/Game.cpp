@@ -1,7 +1,5 @@
 #include "Game.hpp"
 #include "Difficulty.hpp"
-#include "discordeventhandlers.h"
-#include "discordrpc.h"
 #include "raylib.h"
 #include <string.h>
 #define DEBUG_MODE 1
@@ -36,9 +34,13 @@ void Game::init() {
     SetExitKey(KEY_NULL); // disable ESC key
     InitAudioDevice();
     SetWindowIcon(LoadImage("assets/icon.png"));
+
+    #ifndef _WIN32
     DiscordEventHandlers discordHandlers;
+
     memset(&discordHandlers, 0, sizeof(discordHandlers));
     memset(&discordActivity, 0, sizeof(discordActivity));
+
     discordHandlers.disconnected = [](bool wasError) {
         if (wasError) {
             TraceLog(LOG_ERROR, "Discord RPC disconnected with error");
@@ -46,9 +48,11 @@ void Game::init() {
             TraceLog(LOG_INFO, "Discord RPC disconnected");
         }
     };
+
     discordHandlers.error = [](int errorCode, const char* message) {
         TraceLog(LOG_ERROR, "Discord RPC error: %d - %s", errorCode, message);
     };
+
     discordHandlers.ready = [](const DiscordUser* user) {
         TraceLog(LOG_INFO, "Discord RPC ready: %s", user->username);
     };
@@ -60,6 +64,8 @@ void Game::init() {
         TraceLog(LOG_INFO, "Discord RPC connected successfully");
         discordActivity.largeImageText = "Kurdistani Bombala";
     }
+
+    #endif
 
     bossTexture = LoadTexture("assets/boss.png");
     playerTexture = LoadTexture("assets/player.png");
@@ -88,11 +94,13 @@ void Game::update() {
     if (gameState == PLAYING) {
         if (lastGameState != PLAYING) {
             TraceLog(LOG_INFO, "Game started");
+            #ifndef _WIN32
             discordActivity.state = getDifficultyName(currentDifficulty);
             discordActivity.details = "Kurdistani Bombaliyor";
             discordActivity.startTimestamp = timeStart / 1000;
             if (discord.connected)
                 DiscordRPC_setActivity(&discord, &discordActivity);
+            #endif
         }
 
         updateTimers();
@@ -129,31 +137,37 @@ void Game::update() {
     if (gameState == MAIN_MENU) {
         if (lastGameState != MAIN_MENU) {
             TraceLog(LOG_INFO, "Main menu");
+            #ifndef _WIN32
             discordActivity.state = "Ana menude";
             discordActivity.details = nullptr;
             discordActivity.startTimestamp = GetTime() / 1000;
             if (discord.connected)
                 DiscordRPC_setActivity(&discord, &discordActivity);
+            #endif
         }
     }
     if (gameState == WIN) {
         if (lastGameState != WIN) {
             TraceLog(LOG_INFO, "Game won");
+            #ifndef _WIN32
             discordActivity.state = getDifficultyName(currentDifficulty);
             discordActivity.details = "Ankara kurtarildi!";
             discordActivity.startTimestamp = GetTime() / 1000;
             if (discord.connected)
                 DiscordRPC_setActivity(&discord, &discordActivity);
+            #endif
         }
     }
     if (gameState == GAME_OVER) {
         if (lastGameState != GAME_OVER) {
             TraceLog(LOG_INFO, "Game over");
+            #ifndef _WIN32
             discordActivity.state = getDifficultyName(currentDifficulty);
             discordActivity.details = "Ankara dustu!";
             discordActivity.startTimestamp = GetTime() / 1000;
             if (discord.connected)
                 DiscordRPC_setActivity(&discord, &discordActivity);
+            #endif
         }
     }
     lastGameState = gameState;
