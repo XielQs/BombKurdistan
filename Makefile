@@ -2,7 +2,7 @@ NAME		  = bombkurdistan
 NAME_WIN	= bombkurdistan.exe
 
 ZIP_NAME     = bombkurdistan_linux.zip
-ZIP_NAME_WIN = bombkurdistan_win.zip
+ZIP_NAME_WIN = bombkurdistan_windows.zip
 
 INC_DIR		= inc
 LIB_DIR		= lib
