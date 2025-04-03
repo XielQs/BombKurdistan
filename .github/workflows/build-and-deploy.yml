@@ -69,7 +69,7 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
       - name: Upload Linux ZIP to GitHub Release
         uses: actions/upload-release-asset@v1
@@ -79,7 +79,7 @@ jobs:
           asset_name: bombkurdistan_linux.zip
           asset_content_type: application/zip
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
       - name: Upload Windows ZIP to GitHub Release
         uses: actions/upload-release-asset@v1
@@ -89,4 +89,4 @@ jobs:
           asset_name: bombkurdistan_windows.zip
           asset_content_type: application/zip
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
