@@ -26,6 +26,9 @@ Game::~Game() {
     UnloadTexture(lareiTexture);
     UnloadSound(bgMusic);
     CloseAudioDevice();
+    #ifdef __linux__
+    DiscordRPC_shutdown(&discord);
+    #endif
 }
 
 void Game::init() {
