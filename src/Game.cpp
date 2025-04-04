@@ -35,7 +35,7 @@ void Game::init() {
     InitAudioDevice();
     SetWindowIcon(LoadImage("assets/icon.png"));
 
-    #ifndef _WIN32
+    #ifdef __linux__
     DiscordEventHandlers discordHandlers;
 
     memset(&discordHandlers, 0, sizeof(discordHandlers));
@@ -94,7 +94,7 @@ void Game::update() {
     if (gameState == PLAYING) {
         if (lastGameState != PLAYING) {
             TraceLog(LOG_INFO, "Game started");
-            #ifndef _WIN32
+            #ifdef __linux__
             discordActivity.state = getDifficultyName(currentDifficulty);
             discordActivity.details = "Kurdistani Bombaliyor";
             discordActivity.startTimestamp = timeStart / 1000;
@@ -137,7 +137,7 @@ void Game::update() {
     if (gameState == MAIN_MENU) {
         if (lastGameState != MAIN_MENU) {
             TraceLog(LOG_INFO, "Main menu");
-            #ifndef _WIN32
+            #ifdef __linux__
             discordActivity.state = "Ana menude";
             discordActivity.details = nullptr;
             discordActivity.startTimestamp = GetTime() / 1000;
@@ -149,7 +149,7 @@ void Game::update() {
     if (gameState == WIN) {
         if (lastGameState != WIN) {
             TraceLog(LOG_INFO, "Game won");
-            #ifndef _WIN32
+            #ifdef __linux__
             discordActivity.state = getDifficultyName(currentDifficulty);
             discordActivity.details = "Ankara kurtarildi!";
             discordActivity.startTimestamp = GetTime() / 1000;
@@ -161,7 +161,7 @@ void Game::update() {
     if (gameState == GAME_OVER) {
         if (lastGameState != GAME_OVER) {
             TraceLog(LOG_INFO, "Game over");
-            #ifndef _WIN32
+            #ifdef __linux__
             discordActivity.state = getDifficultyName(currentDifficulty);
             discordActivity.details = "Ankara dustu!";
             discordActivity.startTimestamp = GetTime() / 1000;

@@ -12,7 +12,7 @@
 #include <vector>
 #include <math.h>
 #include "raylib.h"
-#ifndef _WIN32
+#ifdef __linux__
 #include <discordrpc.h>
 #endif
 #include "Player.hpp"
@@ -45,7 +45,7 @@ private:
     GameState gameState;
     // we set it to PLAYING as Game::update() needs to be called at least once with MAIN_MENU state
     GameState lastGameState = PLAYING;
-    #ifndef _WIN32
+    #ifdef __linux__
     DiscordRPC discord;
     DiscordActivity discordActivity;
     #endif
