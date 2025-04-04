@@ -18,7 +18,7 @@ Platformunuza gore (Windows/Linux) `bombkurdistan_linux.zip` veya `bombkurdistan
 
 ```bash
 git clone https://github.com/XielQs/BombKurdistan --recurse-submodules
-``
+```
 
 ```bash
 make -j
