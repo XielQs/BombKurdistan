@@ -1,9 +1,10 @@
 #ifndef BULLET_HPP
 #define BULLET_HPP
-#define BULLET_SIZE 5
+
 #include "raylib.h"
 
-class Bullet {
+class Bullet
+{
 public:
     Vector2 position;
     Vector2 direction;

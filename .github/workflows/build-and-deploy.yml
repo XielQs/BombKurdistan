@@ -50,12 +50,12 @@ jobs:
           BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
 
       - name: Upload Linux build to Itch.io
-        run: butler push bombkurdistan_linux.zip xielq/bomb-kurdistan:linux
+        run: butler push bombkurdistan_linux.zip xielq/bomb-kurdistan:linux --userversion=1.0.${{ github.run_number }}
         env:
           BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
 
       - name: Upload Windows build to Itch.io
-        run: butler push bombkurdistan_windows.zip xielq/bomb-kurdistan:windows
+        run: butler push bombkurdistan_windows.zip xielq/bomb-kurdistan:windows --userversion=1.0.${{ github.run_number }}
         env:
           BUTLER_API_KEY: ${{ secrets.ITCH_API_KEY }}
 

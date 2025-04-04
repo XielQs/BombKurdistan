@@ -1,3 +1,4 @@
+#include "Constants.hpp"
 #include "Bullet.hpp"
 
 Bullet::Bullet(Vector2 position, Vector2 direction, float speed):

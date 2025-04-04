@@ -1,3 +1,4 @@
+#include "Constants.hpp"
 #include "Bomb.hpp"
 
 Bomb::Bomb(Texture2D texture, Vector2 position):

@@ -1,3 +1,4 @@
+#include "Constants.hpp"
 #include "Boss.hpp"
 
 Boss::Boss(Texture2D texture, Texture2D lareiTexture):

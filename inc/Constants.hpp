@@ -1,0 +1,26 @@
+#ifndef CONSTANTS_HPP
+#define CONSTANTS_HPP
+
+#define TEXT_HEIGHT 25.f
+#define GAME_FPS 60
+
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+#define ATTACK_OFFSET 150
+
+#define BULLET_SIZE 5
+#define BOMB_DAMAGE 20
+
+#define BOSS_HEALTH 100
+#define BOSS_HEIGHT 200
+
+#define PLAYER_HEALTH 100
+#define SCREEN_PADDING 20
+#define PLAYER_SIZE 24
+#define PLAYER_SPEED GAME_FPS * 5
+
+#define SCREEN_DRAW_X (SCREEN_WIDTH / 2.f)
+#define SCREEN_DRAW_Y (SCREEN_HEIGHT / 2.f)
+#define DARKRED (Color){ 139, 0, 0, 255 }
+
+#endif

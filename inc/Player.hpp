@@ -1,9 +1,6 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
-#define PLAYER_HEALTH 100
-#define SCREEN_PADDING 20
-#define PLAYER_SIZE 24
-#define PLAYER_SPEED 5
+
 #include "raylib.h"
 
 class Player

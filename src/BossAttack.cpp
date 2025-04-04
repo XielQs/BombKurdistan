@@ -1,4 +1,5 @@
 #include "BossAttack.hpp"
+#include "Constants.hpp"
 #include "Difficulty.hpp"
 #include <algorithm>
 

@@ -1,17 +1,18 @@
-#include "Game.hpp"
+#include "Constants.hpp"
 #include "Difficulty.hpp"
+#include "Game.hpp"
 #include "raylib.h"
 #include <string.h>
 #define DEBUG_MODE 1
 
 Game::Game():
-    gameState(MAIN_MENU), 
-    isMuted(false), 
-    bombTimer(0.f), 
-    attackTimer(0.f), 
-    timeStart(GetTime()), 
+    player(nullptr),
+    gameState(MAIN_MENU),
+    isMuted(false),
+    bombTimer(0.f),
+    attackTimer(0.f),
+    timeStart(GetTime()),
     timeEnd(0.f),
-    player(nullptr), 
     boss(nullptr)
 {
 }
@@ -24,7 +25,7 @@ Game::~Game() {
     UnloadTexture(playerTexture);
     UnloadTexture(bombTexture);
     UnloadTexture(lareiTexture);
-    UnloadSound(bgMusic);
+    UnloadMusicStream(bgMusic);
     CloseAudioDevice();
     #ifdef __linux__
     DiscordRPC_shutdown(&discord);
@@ -33,10 +34,12 @@ Game::~Game() {
 
 void Game::init() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Kurdistan Bombalayici");
-    SetTargetFPS(60);
+    SetTargetFPS(GAME_FPS);
     SetExitKey(KEY_NULL); // disable ESC key
     InitAudioDevice();
+    #ifndef PLATFORM_WEB
     SetWindowIcon(LoadImage("assets/icon.png"));
+    #endif
 
     #ifdef __linux__
     DiscordEventHandlers discordHandlers;
@@ -74,7 +77,7 @@ void Game::init() {
     playerTexture = LoadTexture("assets/player.png");
     bombTexture = LoadTexture("assets/bomb.png");
     lareiTexture = LoadTexture("assets/larei.png");
-    bgMusic = LoadSound("assets/bg_music.mp3");
+    bgMusic = LoadMusicStream("assets/bg_music.mp3");
 
     player = new Player(playerTexture);
     boss = new Boss(bossTexture, lareiTexture);
@@ -94,6 +97,7 @@ void Game::reset() {
 }
 
 void Game::update() {
+    UpdateMusicStream(bgMusic);
     if (gameState == PLAYING) {
         if (lastGameState != PLAYING) {
             TraceLog(LOG_INFO, "Game started");
@@ -181,11 +185,11 @@ void Game::draw() {
     ClearBackground(Color{ 10, 10, 10, 255 });
 
     if (gameState == PLAYING && !isMuted) {
-        if (!IsSoundPlaying(bgMusic)) {
-            PlaySound(bgMusic);
+        if (!IsMusicStreamPlaying(bgMusic)) {
+            PlayMusicStream(bgMusic);
         }
     } else {
-        StopSound(bgMusic);
+        StopMusicStream(bgMusic);
     }
 
     if (gameState == PLAYING) {
@@ -279,9 +283,9 @@ void Game::handleInput() {
     if (IsKeyPressed(KEY_M) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
         isMuted = !isMuted;
         if (isMuted) {
-            StopSound(bgMusic);
+            StopMusicStream(bgMusic);
         } else if (gameState == PLAYING) {
-            PlaySound(bgMusic);
+            PlayMusicStream(bgMusic);
         }
     }
 
@@ -346,6 +350,12 @@ void Game::handleInput() {
             exit(0); // using exit(0) because if we don't, the game will crash idk
         }
     }
+}
+
+void Game::updateFrame() {
+    handleInput();
+    update();
+    draw();
 }
 
 void Game::updateTimers() {

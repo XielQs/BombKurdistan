@@ -8,15 +8,33 @@ Raylib kutuphanesini denemek istiyordum cok, raylibe baslamak isteyen varsa teme
 
 Ve evet kodlarimin igrenc oldugunu biliyorum benim sucum degil...
 
+## Download
+
+Eger ki build almak istemiyorsaniz direkt [releases](https://github.com/XielQs/BombKurdistan/releases) sayfasindan indirebilirsiniz.
+
+Platformunuza gore (Windows/Linux) `bombkurdistan_linux.zip` veya `bombkurdistan_windows.zip` dosyasini indirin ve zipten cikartin. Ardindan `./bombkurdistan` veya `./bombkurdistan.exe` dosyasini calistirabilirsiniz.
+
 ## Build
+
+```bash
+git clone https://github.com/XielQs/BombKurdistan --recurse-submodules
+``
 
 ```bash
 make -j
 ```
 
+### Build for Windows
+
+Windows'dan windowsa build alamiyorsunuz uzgunum o yuzden linux!!!
+
+```bash
+make windows -j
+```
+
 ## Run
 
-`./bombkurdistan` ile calistirabilirsiniz su anlik sadece amd64 linuxde test ettim windowsda calisiyor mu bilmiyorum ama make kullanmakta basarilar :D
+Build aldiktan sonra oyunun bulundugu dizine platformunuza gore `./bombkurdistan` veya `./bombkurdistan.exe` olusacak, onu calistirabilirsiniz.
 
 ## Gameplay
 

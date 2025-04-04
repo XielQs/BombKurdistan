@@ -1,14 +1,6 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
-#define TEXT_HEIGHT 25.f
-#define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
-#define ATTACK_OFFSET 150
-#define SCREEN_DRAW_X (SCREEN_WIDTH / 2.f)
-#define SCREEN_DRAW_Y (SCREEN_HEIGHT / 2.f)
-#define DARKRED (Color){ 139, 0, 0, 255 }
-
 #include <vector>
 #include <math.h>
 #include "raylib.h"
@@ -39,7 +31,9 @@ public:
     void draw();
     void handleInput();
     void updateTimers();
+    void updateFrame();
     void setGameState(GameState newState);
+    Player* player;
 
 private:
     GameState gameState;
@@ -54,7 +48,6 @@ private:
     float attackTimer;
     float timeStart;
     float timeEnd;
-    Player* player;
     Boss* boss;
     std::vector<BossAttack> bossAttacks;
     std::vector<Bomb> bombs;
@@ -62,7 +55,7 @@ private:
     Texture2D playerTexture;
     Texture2D bombTexture;
     Texture2D lareiTexture;
-    Sound bgMusic;
+    Music bgMusic;
 
     void createAttack();
     void drawTextCenter(const char* text, float x, float y, float fontSize, Color color);

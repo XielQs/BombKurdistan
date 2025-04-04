@@ -1,5 +1,5 @@
+#include "Constants.hpp"
 #include "Player.hpp"
-#include "Boss.hpp"
 #include "raylib.h"
 #include <cmath>
 
