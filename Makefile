@@ -28,7 +28,7 @@ RM			  = rm -rf
 
 ifeq ($(MAKECMDGOALS), windows)
 	CXX = x86_64-w64-mingw32-g++
-	CXXFLAGS = -O3
+	CXXFLAGS += -O3
 	LDFLAGS += -lraylib.win -static -lgdi32 -lwinmm
 	BUILD_SUBDIR = $(BUILD_DIR)/win
 else ifeq ($(MAKECMDGOALS), web)
