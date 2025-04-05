@@ -31,17 +31,17 @@ void Player::update()
 {
     previousPosition = position;
     // update player position
-    if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) position.y -= PLAYER_SPEED;
-    if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) position.y += PLAYER_SPEED;
-    if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_LEFT)) position.x -= PLAYER_SPEED;
-    if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_RIGHT)) position.x += PLAYER_SPEED;
+    if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) position.y -= PLAYER_SPEED * GetFrameTime();
+    if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) position.y += PLAYER_SPEED * GetFrameTime();
+    if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_LEFT)) position.x -= PLAYER_SPEED * GetFrameTime();
+    if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_RIGHT)) position.x += PLAYER_SPEED * GetFrameTime();
 
     // add gamepad support
     if (IsGamepadAvailable(0)) {
         Vector2 gamepadAxis = { GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X), GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_Y) };
         if (fabs(gamepadAxis.x) > 0.1f || fabs(gamepadAxis.y) > 0.1f) {
-            position.x += gamepadAxis.x * PLAYER_SPEED;
-            position.y += gamepadAxis.y * PLAYER_SPEED;
+            position.x += gamepadAxis.x * PLAYER_SPEED * GetFrameTime();
+            position.y += gamepadAxis.y * PLAYER_SPEED * GetFrameTime();
         }
     }
 
