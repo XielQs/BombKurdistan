@@ -1,3 +1,4 @@
+#pragma once
 #ifndef BOSS_HPP
 #define BOSS_HPP
 
@@ -7,13 +8,19 @@ class Boss
 {
 public:
     Boss(Texture2D texture, Texture2D lareiTexture);
-    void draw();
-    void update();
+
+    float health;
+
+    void draw() const;
+    void update(float deltaTime);
     void init();
     void takeDamage(float damage);
-    float health;
+
+private:
     Texture2D texture;
     Texture2D lareiTexture;
+    float animTime;
+    float lareiOffsetX;
 };
 
 #endif // BOSS_HPP

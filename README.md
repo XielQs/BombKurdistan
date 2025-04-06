@@ -53,7 +53,8 @@ https://github.com/user-attachments/assets/4d711217-3279-4683-b387-9cbfc0646ffb
 - `ESC` - menu/cikis
 - `M` - sesi ac/kapat
 - `R` - yeniden basla
-- `F7` - yapimcilar menusu
+- `C` - yapimcilar menusu
+- `P` - oyunu durdur
 
 #### Gamepad
 
@@ -64,7 +65,8 @@ https://github.com/user-attachments/assets/4d711217-3279-4683-b387-9cbfc0646ffb
 - `ps daire` - menu/cikis
 - `ps kare` - sesi ac/kapat
 - `ps x` - yeniden basla
-- `ps tusu` - yapimcilar menusu
+- `ps ucgen` - yapimcilar menusu
+- `ps L1` - oyunu durdur
 
 ## Special Thanks
 

@@ -2,6 +2,7 @@
 #include "Constants.hpp"
 #include "Difficulty.hpp"
 #include <algorithm>
+#include <memory>
 
 float getAttackSizeRadius(AttackSize size)
 {
@@ -19,8 +20,8 @@ BossAttack::BossAttack(Vector2 position, AttackSize size):
     explodeTime(0.f),
     exploded(false)
 {
-    float factor = (currentDifficulty == EASY) ? 2.0f : (currentDifficulty == NORMAL) ? 1.f : 0.5f;
-    explodeTime = GetTime() + ((size == AttackSize::SMALL) ? 0.5f : (size == AttackSize::MEDIUM) ? 1.0f : 1.5f) * factor;
+    float factor = (currentDifficulty == EASY) ? BossAttackConfig::EASY_FACTOR : (currentDifficulty == NORMAL) ? BossAttackConfig::NORMAL_FACTOR : BossAttackConfig::HARD_FACTOR;
+    explodeTime = GetTime() + (size == AttackSize::SMALL ? BossAttackConfig::SMALL_EXPLODE_TIME : (size == AttackSize::MEDIUM ? BossAttackConfig::MEDIUM_EXPLODE_TIME : BossAttackConfig::LARGE_EXPLODE_TIME)) * factor;
 }
 
 void BossAttack::draw() const
@@ -30,52 +31,48 @@ void BossAttack::draw() const
         float radius = getAttackSizeRadius(size);
         DrawCircleLines(position.x, position.y, radius, color);
     }
-    for (const Bullet& bullet : bullets) {
-        bullet.draw();
-    }
+    for (const auto& bullet : bullets) bullet->draw();
 }
 
-bool BossAttack::isAlive()
+bool BossAttack::isAlive() const
 {
     return !exploded || !bullets.empty();
 }
 
 void BossAttack::update(Player& player)
 {
-    if (!exploded && GetTime() > explodeTime) {
-        explode();
-    }
+    if (!exploded && GetTime() > explodeTime) explode();
 
-    for (Bullet& bullet : bullets) {
-        bullet.update();
-    }
+    const float screenWidth = static_cast<float>(GetScreenWidth());
+    const float screenHeight = static_cast<float>(GetScreenHeight());
 
-    for (Bullet& bullet : bullets) {
-        if (bullet.active && CheckCollisionCircles(bullet.position, BULLET_SIZE, player.position, PLAYER_SIZE - 5.f)) { // -5.f to avoid false positives
-            TraceLog(LOG_INFO, "Bullet hit player at: (%f, %f)", bullet.position.x, bullet.position.y);
+    for (auto& bullet : bullets) {
+        bullet->update(GetFrameTime());
+        if (bullet->active && CheckCollisionCircles(bullet->position, BULLET_SIZE, player.position, PLAYER_COLLISION_RADIUS)) {
+            TraceLog(LOG_INFO, "Bullet hit player at: (%f, %f)", bullet->position.x, bullet->position.y);
             player.takeDamage(5.f);
-            bullet.active = false;
+            bullet->active = false;
         }
-        if (bullet.position.x < 0 || bullet.position.x > GetScreenWidth() || bullet.position.y < 0 || bullet.position.y > GetScreenHeight()) {
-            bullet.active = false;
+        if (bullet->position.x < 0 || bullet->position.x > screenWidth || bullet->position.y < 0 || bullet->position.y > screenHeight) {
+            bullet->active = false;
         }
     }
 
     // remove inactive bullets
-    bullets.erase(std::remove_if(bullets.begin(), bullets.end(), [](Bullet& bullet) { return !bullet.active; }), bullets.end());
+    bullets.erase(std::remove_if(bullets.begin(), bullets.end(), [](const auto& bullet) { return !bullet->active; }), bullets.end());
 }
 
 void BossAttack::explode()
 {
     exploded = true;
-    int bulletCount = (size == AttackSize::SMALL) ? 8 : (size == AttackSize::MEDIUM) ? 10 : 12;
-    float factor = (currentDifficulty == EASY) ? 0.8 : (currentDifficulty == NORMAL) ? 1. : 1.5;
-    int bulletSpeed = ((size == AttackSize::SMALL) ? 6 : (size == AttackSize::MEDIUM) ? 4 : 3) * factor;
+    int bulletCount = (size == AttackSize::SMALL) ? BossAttackConfig::SMALL_BULLET_COUNT : (size == AttackSize::MEDIUM) ? BossAttackConfig::MEDIUM_BULLET_COUNT : BossAttackConfig::LARGE_BULLET_COUNT;
+    float factor = (currentDifficulty == EASY) ? BossAttackConfig::EASY_FACTOR : (currentDifficulty == NORMAL) ? BossAttackConfig::NORMAL_FACTOR : BossAttackConfig::HARD_FACTOR;
+    float bulletSpeed = ((size == AttackSize::SMALL) ? BossAttackConfig::SMALL_BULLET_SPEED : (size == AttackSize::MEDIUM) ? BossAttackConfig::MEDIUM_BULLET_SPEED : BossAttackConfig::LARGE_BULLET_SPEED) * factor;
     float angleStep = 360.0f / bulletCount;
 
     for (int i = 0; i < bulletCount; i++) {
         float angle = angleStep * i;
         Vector2 dir = { cosf(DEG2RAD * angle), sinf(DEG2RAD * angle) };
-        bullets.push_back(Bullet({ position.x + dir.x, position.y + dir.y }, dir, bulletSpeed));
+        bullets.emplace_back(std::make_unique<Bullet>(Vector2{ position.x + dir.x, position.y + dir.y }, dir, bulletSpeed));
     }
 }

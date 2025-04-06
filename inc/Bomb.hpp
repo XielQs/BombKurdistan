@@ -1,3 +1,4 @@
+#pragma once
 #ifndef BOMB_HPP
 #define BOMB_HPP
 
@@ -9,13 +10,17 @@ class Bomb
 {
 public:
     Bomb(Texture2D texture, Vector2 position);
-    void draw() const;
-    void update(Player& player, Boss& boss);
-    bool isAlive();
-    void explode(Boss& boss);
+
     Vector2 position;
-    float expireTime;
+
+    void draw() const;
+    void update(Player& player, Boss& boss, float deltaTime);
+    bool isAlive() const;
+    void explode(Boss& boss);
+private:
     Texture2D texture;
+    float expireTime;
+    float currentScale;
 };
 
 #endif // BOMB_HPP

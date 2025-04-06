@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
@@ -7,15 +8,19 @@ class Player
 {
 public:
     Player(Texture2D texture);
+
+    float health;
+    Texture2D texture;
+    Vector2 position;
+    Vector2 velocity;
+
     void draw();
     void update();
     void init();
     void takeDamage(float damage);
-    float health;
-    Texture2D texture;
-    Vector2 position;
+
+private:
     Vector2 previousPosition;
-    Vector2 velocity;
 };
 
 #endif // PLAYER_HPP

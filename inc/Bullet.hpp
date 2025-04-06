@@ -1,3 +1,4 @@
+#pragma once
 #ifndef BULLET_HPP
 #define BULLET_HPP
 
@@ -6,14 +7,18 @@
 class Bullet
 {
 public:
-    Vector2 position;
-    Vector2 direction;
-    float speed;
-    bool active;
-
     Bullet(Vector2 position, Vector2 direction, float speed);
-    void update();
+
+    bool active;
+    Vector2 position;
+
+    void update(float deltaTime);
     void draw() const;
+
+private:
+    Vector2 direction;
+    Vector2 velocity;
+    float speed;
 };
 
 #endif // BULLET_HPP

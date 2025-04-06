@@ -1,11 +1,12 @@
 #include "Game.hpp"
 #ifdef PLATFORM_WEB
+#include "Constants.hpp"
 #include <emscripten/emscripten.h>
 #endif
 
 Game game;
 
-Vector2 fakeGamepadAxis = { 0.0f, 0.0f };
+Vector2 fakeGamepadAxis = {0.f, 0.f};
 
 #ifdef PLATFORM_WEB
 extern "C" {
@@ -33,9 +34,10 @@ int main() {
         },
         0, 1);
     #else
-    while (!WindowShouldClose())
-        game.updateFrame();
+    while (!game.shouldClose && !WindowShouldClose()) game.updateFrame();
     #endif
 
+    game.cleanup();
+    CloseWindow();
     return 0;
 }
