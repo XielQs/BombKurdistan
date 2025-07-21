@@ -2,6 +2,7 @@
 #include "Difficulty.hpp"
 #include "Constants.hpp"
 #include "Game.hpp"
+#include "Input.hpp"
 #include "raylib.h"
 #include <algorithm>
 #include <memory>
@@ -116,6 +117,7 @@ void Game::update()
     UpdateMusicStream(bgMusic);
 
     if (gameState == PLAYING) {
+        Input::unlockMouse();
         if (lastGameState != PLAYING) {
             TraceLog(LOG_INFO, "Game started");
             #ifdef __linux__
@@ -181,6 +183,8 @@ void Game::update()
                 isShaking = false;
             }
         }
+    } else {
+        player->resetMouseTarget(); // reset mouse target when not playing
     }
     if (gameState == MAIN_MENU && lastGameState != MAIN_MENU) {
         TraceLog(LOG_INFO, "Main menu");
@@ -317,7 +321,7 @@ void Game::draw()
 void Game::handleInput()
 {
     // gamepad Square button
-    if (IsKeyPressed(KEY_M) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT)) {
+    if (Input::isMusicMuted()) {
         isMuted = !isMuted;
         if (isMuted) StopMusicStream(bgMusic);
         else if (gameState == PLAYING) PlayMusicStream(bgMusic);
@@ -326,13 +330,13 @@ void Game::handleInput()
     switch (gameState) {
         case PLAYING:
             // gamepad Circle button
-            if (IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
+            if (Input::isEscapeKey()) {
                 TraceLog(LOG_INFO, "Game paused");
                 setGameState(MAIN_MENU);
                 return;
             }
             // gamepad L1 button
-            if (IsKeyPressed(KEY_P) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1)) {
+            if (Input::isPauseKey()) {
                 isPaused = !isPaused;
                 if (isPaused) {
                     timeEnd = GetTime();
@@ -346,59 +350,63 @@ void Game::handleInput()
                 }
             }
             #ifdef DEBUG_MODE
-            if (IsKeyPressed(KEY_I)) setGameState(WIN);
-            if (IsKeyPressed(KEY_O)) setGameState(GAME_OVER);
-            if (IsKeyPressed(KEY_B)) spawnBomb();
+            if (Input::isKeyPressed(KEY_I)) setGameState(WIN);
+            if (Input::isKeyPressed(KEY_O)) setGameState(GAME_OVER);
+            if (Input::isKeyPressed(KEY_B)) spawnBomb();
             #endif
             break;
         case MAIN_MENU:
-            if (IsKeyPressed(KEY_ONE)) currentDifficulty = EASY;
-            if (IsKeyPressed(KEY_TWO)) currentDifficulty = NORMAL;
-            if (IsKeyPressed(KEY_THREE)) currentDifficulty = HARD;
-            // gamepad Circle button
-            if (IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
+            if (Input::isKeyPressed(KEY_ONE)) currentDifficulty = EASY;
+            if (Input::isKeyPressed(KEY_TWO)) currentDifficulty = NORMAL;
+            if (Input::isKeyPressed(KEY_THREE)) currentDifficulty = HARD;
+            if (Input::isEscapeKey()) {
                 cleanup();
                 return;
             }
-            if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
+            if (Input::isEnterOrSpace()) {
                 reset();
                 setGameState(PLAYING);
             }
-            // gamepad Dpad up
-            if (IsKeyPressed(KEY_UP) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) {
+            if (Input::isArrowUp()) {
                 currentDifficulty = (Difficulty)((currentDifficulty + 2) % 3);
             }
-            // gamepad Dpad down
-            if (IsKeyPressed(KEY_DOWN) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) {
+            if (Input::isArrowDown()) {
                 currentDifficulty = (Difficulty)((currentDifficulty + 1) % 3);
             }
-            // gamepad Triangle button
-            if (IsKeyPressed(KEY_C) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_UP)) {
+            if (Input::isCreditsKey()) {
                 setGameState(MENU_CREDITS);
+            }
+            // select difficulty with mouse
+            if (Input::isLeftButton()) {
+                Vector2 mousePos = GetMousePosition();
+                if (mousePos.x >= SCREEN_DRAW_X - 100 && mousePos.x <= SCREEN_DRAW_X + 100) {
+                    if (mousePos.y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 1 && mousePos.y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 2) currentDifficulty = EASY;
+                    else if (mousePos.y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 2 && mousePos.y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 3) currentDifficulty = NORMAL;
+                    else if (mousePos.y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 3 && mousePos.y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 4) currentDifficulty = HARD;
+                    Input::lockMouse();
+                    reset();
+                    setGameState(PLAYING);
+                }
             }
             break;
         case MENU_CREDITS:
-            // gamepad Circle button
-            if (IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
+            if (Input::isEscapeKey()) {
                 setGameState(MAIN_MENU);
             }
             break;
         case WIN:
         case GAME_OVER:
-            // gamepad X button
-            if (IsKeyPressed(KEY_R) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN)) {
+            if (Input::isResetKey()) {
                 reset();
                 setGameState(PLAYING);
             }
-            // gamepad Circle button
-            if (IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
+            if (Input::isEscapeKey()) {
                 cleanup();
                 return;
             }
             break;
         case GAME_ERROR_TEXTURE:
-            // gamepad Circle button
-            if (IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT)) {
+            if (Input::isEscapeKey()) {
                 cleanup();
                 return;
             }

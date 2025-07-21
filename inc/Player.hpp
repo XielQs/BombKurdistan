@@ -18,9 +18,12 @@ public:
     void update();
     void init();
     void takeDamage(float damage);
+    void resetMouseTarget();
 
 private:
     Vector2 previousPosition;
+    Vector2 mouseTarget;
+    bool isMouseTargetSet;
 };
 
 #endif // PLAYER_HPP

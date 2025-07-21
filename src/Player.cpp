@@ -1,6 +1,7 @@
 #include "GlobalBounds.hpp"
 #include "Constants.hpp"
 #include "Player.hpp"
+#include "Input.hpp"
 #include "raymath.h"
 #include <algorithm>
 #include "raylib.h"
@@ -62,11 +63,10 @@ void Player::update()
     previousPosition = position;
     Vector2 input = {0, 0};
 
-    // update player position
-    if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) input.y -= 1.f;
-    if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) input.y += 1.f;
-    if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) input.x -= 1.f;
-    if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) input.x += 1.f;
+    if (Input::isLeftButton()) {
+        mouseTarget = GetMousePosition();
+        isMouseTargetSet = true;
+    }
 
     // add gamepad support
     if (IsGamepadAvailable(0)) {
@@ -79,11 +79,33 @@ void Player::update()
             input.x += gamepadAxis.x;
             input.y += gamepadAxis.y;
         }
+    }
 
-        if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_UP)) input.y -= 1.f;
-        if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN)) input.y += 1.f;
-        if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_LEFT)) input.x -= 1.f;
-        if (IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_RIGHT)) input.x += 1.f;
+    // update player position
+    if (Input::isPlayerUp()) {
+        input.y -= 1.f;
+        resetMouseTarget();
+    }
+    if (Input::isPlayerDown()) {
+        input.y += 1.f;
+        resetMouseTarget();
+    }
+    if (Input::isPlayerLeft()) {
+        input.x -= 1.f;
+        resetMouseTarget();
+    }
+    if (Input::isPlayerRight()) {
+        input.x += 1.f;
+        resetMouseTarget();
+    }
+
+    if (isMouseTargetSet) {
+        Vector2 direction = Vector2Subtract(mouseTarget, position);
+        if (Vector2Length(direction) > 2.5f) {
+            input = Vector2Normalize(direction);
+        } else {
+            resetMouseTarget(); // reset if mouse target is reached
+        }
     }
 
     if (input.x != 0.f || input.y != 0.f) {
@@ -110,4 +132,10 @@ void Player::takeDamage(float damage)
         SetGamepadVibration(0, 0.7f, 0.7f, 0.2f);
     }
     #endif
+}
+
+void Player::resetMouseTarget()
+{
+    isMouseTargetSet = false;
+    mouseTarget = {0, 0};
 }
