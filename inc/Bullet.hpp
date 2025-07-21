@@ -18,7 +18,6 @@ public:
 private:
     Vector2 direction;
     Vector2 velocity;
-    float speed;
 };
 
 #endif // BULLET_HPP

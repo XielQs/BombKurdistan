@@ -5,8 +5,7 @@
 Bullet::Bullet(Vector2 position, Vector2 direction, float speed):
     active(true),
     position(position),
-    direction(Vector2Normalize(direction)),
-    speed(speed)
+    direction(Vector2Normalize(direction))
 {
     velocity = Vector2Scale(direction, speed * GAME_FPS); // direction * speed
 }
