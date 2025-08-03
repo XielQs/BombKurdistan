@@ -27,6 +27,8 @@ RM			  = rm -rf
 
 ifdef DEBUG
 	CXXFLAGS += -DDEBUG_MODE
+else
+	LDFLAGS  += -s
 endif
 
 ifeq ($(MAKECMDGOALS), windows)
