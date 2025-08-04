@@ -5,6 +5,6 @@
 enum Difficulty { EASY, NORMAL, HARD };
 extern Difficulty currentDifficulty;
 
-const char* getDifficultyName(Difficulty difficulty);
+const char *getDifficultyName(Difficulty difficulty);
 
 #endif // DIFFICULTY_HPP

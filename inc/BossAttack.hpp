@@ -2,12 +2,12 @@
 #ifndef BOSSATTACK_HPP
 #define BOSSATTACK_HPP
 
-#include "raylib.h"
-#include <vector>
-#include <raymath.h>
-#include <memory>
-#include "Player.hpp"
 #include "Bullet.hpp"
+#include "Player.hpp"
+#include "raylib.h"
+#include <memory>
+#include <raymath.h>
+#include <vector>
 
 enum AttackSize { SMALL, MEDIUM, LARGE };
 
@@ -23,7 +23,7 @@ public:
     std::vector<std::unique_ptr<Bullet>> bullets;
 
     void draw() const;
-    void update(Player& player);
+    void update(Player &player);
     bool isAlive() const;
     void explode();
 };

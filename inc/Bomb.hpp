@@ -2,9 +2,9 @@
 #ifndef BOMB_HPP
 #define BOMB_HPP
 
-#include "raylib.h"
-#include "Player.hpp"
 #include "Boss.hpp"
+#include "Player.hpp"
+#include "raylib.h"
 
 class Bomb
 {
@@ -14,9 +14,10 @@ public:
     Vector2 position;
 
     void draw() const;
-    void update(Player& player, Boss& boss, float deltaTime);
+    void update(Player &player, Boss &boss, float deltaTime);
     bool isAlive() const;
-    void explode(Boss& boss);
+    void explode(Boss &boss);
+
 private:
     Texture2D texture;
     float expireTime;

@@ -6,22 +6,26 @@ bool Input::shouldUnlockMouse = false;
 
 bool Input::isPlayerUp()
 {
-    return IsKeyDown(KEY_W) || IsKeyDown(KEY_UP) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_UP);
+    return IsKeyDown(KEY_W) || IsKeyDown(KEY_UP) ||
+           IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_UP);
 }
 
 bool Input::isPlayerDown()
 {
-    return IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN);
+    return IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN) ||
+           IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN);
 }
 
 bool Input::isPlayerLeft()
 {
-    return IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_LEFT);
+    return IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT) ||
+           IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_LEFT);
 }
 
 bool Input::isPlayerRight()
 {
-    return IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT) || IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_RIGHT);
+    return IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT) ||
+           IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_RIGHT);
 }
 
 bool Input::isMusicMuted()
@@ -65,7 +69,8 @@ bool Input::isCreditsKey()
 bool Input::isEnterOrSpace()
 {
     // gamepad Circle button
-    return IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
+    return IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE) ||
+           IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
 }
 
 bool Input::isKeyPressed(KeyboardKey key)
@@ -75,8 +80,7 @@ bool Input::isKeyPressed(KeyboardKey key)
 
 bool Input::isArrowUp()
 {
-    return IsKeyPressed(KEY_UP) ||  IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_UP);
-
+    return IsKeyPressed(KEY_UP) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_UP);
 }
 
 bool Input::isArrowDown()

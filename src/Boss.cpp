@@ -1,18 +1,15 @@
+#include "Boss.hpp"
 #include "Constants.hpp"
 #include "Difficulty.hpp"
 #include "Game.hpp"
 #include "raylib.h"
-#include "Boss.hpp"
 #include <cmath>
 #include <unistd.h>
 
 extern Game game;
 
-Boss::Boss(Texture2D texture, Texture2D lareiTexture):
-    texture(texture),
-    lareiTexture(lareiTexture),
-    animTime(0.f),
-    lareiOffsetX(0.f)
+Boss::Boss(Texture2D texture, Texture2D lareiTexture)
+    : texture(texture), lareiTexture(lareiTexture), animTime(0.f), lareiOffsetX(0.f)
 {
     init();
 }
@@ -27,18 +24,11 @@ void Boss::draw() const
     const float screenWidth = static_cast<float>(GetScreenWidth());
 
     DrawTexturePro(
-        texture,
-        {0.f, 0.f, static_cast<float>(texture.width), static_cast<float>(texture.height)},
-        {0.f, 0.f, screenWidth, BOSS_HEIGHT},
-        {0.f, 0.f},
-        0.f,
-        WHITE
-    );
+        texture, {0.f, 0.f, static_cast<float>(texture.width), static_cast<float>(texture.height)},
+        {0.f, 0.f, screenWidth, BOSS_HEIGHT}, {0.f, 0.f}, 0.f, WHITE);
 
-    const Vector2 lareiPos = {
-        screenWidth - lareiTexture.width + lareiOffsetX,
-        (BOSS_HEIGHT - lareiTexture.height) * 0.5f
-    };
+    const Vector2 lareiPos = {screenWidth - lareiTexture.width + lareiOffsetX,
+                              (BOSS_HEIGHT - lareiTexture.height) * 0.5f};
     DrawTextureV(lareiTexture, lareiPos, WHITE);
 
     const float healthWidth = (GetScreenWidth() - 40.f) * (health / BOSS_HEALTH);
@@ -63,7 +53,8 @@ void Boss::update(float deltaTime)
 
     // if health is less than 30% and difficulty is HARD
     // regenerate health
-    if (health < BOSS_HEALTH * 0.3f && currentDifficulty == HARD) health += deltaTime * 0.5f;
+    if (health < BOSS_HEALTH * 0.3f && currentDifficulty == HARD)
+        health += deltaTime * 0.5f;
 }
 
 void Boss::takeDamage(float damage)

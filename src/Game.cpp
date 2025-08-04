@@ -1,25 +1,17 @@
-#include "GlobalBounds.hpp"
-#include "Difficulty.hpp"
-#include "Constants.hpp"
 #include "Game.hpp"
+#include "Constants.hpp"
+#include "Difficulty.hpp"
+#include "GlobalBounds.hpp"
 #include "Input.hpp"
 #include "raylib.h"
 #include <algorithm>
 #include <memory>
 #include <string.h>
 
-Game::Game():
-    player(nullptr),
-    shouldClose(false),
-    gameState(MAIN_MENU),
-    isMuted(false),
-    bombTimer(0.f),
-    attackTimer(0.f),
-    timeStart(GetTime()),
-    timeEnd(0.f),
-    boss(nullptr),
-    isShaking(false),
-    isPaused(false)
+Game::Game()
+    : player(nullptr), shouldClose(false), gameState(MAIN_MENU), isMuted(false), bombTimer(0.f),
+      attackTimer(0.f), timeStart(GetTime()), timeEnd(0.f), boss(nullptr), isShaking(false),
+      isPaused(false)
 {
 }
 
@@ -30,12 +22,12 @@ void Game::init()
     SetExitKey(KEY_NULL); // disable ESC key
     InitAudioDevice();
     InitMovementBounds(GetScreenWidth(), GetScreenHeight());
-    #ifndef PLATFORM_WEB
+#ifndef PLATFORM_WEB
     SetWindowState(FLAG_VSYNC_HINT);
     SetWindowIcon(LoadImage("assets/icon.png"));
-    #endif
+#endif
 
-    #ifdef __linux__
+#ifdef __linux__
     DiscordEventHandlers discordHandlers;
 
     memset(&discordHandlers, 0, sizeof(discordHandlers));
@@ -49,22 +41,23 @@ void Game::init()
         }
     };
 
-    discordHandlers.error = [](int errorCode, const char* message) {
+    discordHandlers.error = [](int errorCode, const char *message) {
         TraceLog(LOG_ERROR, "Discord RPC error: %d - %s", errorCode, message);
     };
 
-    discordHandlers.ready = [](const DiscordUser* user) {
+    discordHandlers.ready = [](const DiscordUser *user) {
         TraceLog(LOG_INFO, "Discord RPC ready: %s", user->username);
     };
     DiscordRPC_init(&discord, "1356073834981097552", &discordHandlers);
 
-    if (!discord.connected) TraceLog(LOG_ERROR, "Discord RPC failed to connect: %s", discord.last_error);    
+    if (!discord.connected)
+        TraceLog(LOG_ERROR, "Discord RPC failed to connect: %s", discord.last_error);
     else {
         TraceLog(LOG_INFO, "Discord RPC connected successfully");
         discordActivity.largeImageText = "Kurdistani Bombala";
     }
 
-    #endif
+#endif
 
     bossTexture = LoadTexture("assets/boss.png");
     playerTexture = LoadTexture("assets/player.png");
@@ -72,7 +65,8 @@ void Game::init()
     lareiTexture = LoadTexture("assets/larei.png");
     bgMusic = LoadMusicStream("assets/bg_music.mp3");
 
-    if (bossTexture.id <= 0 || playerTexture.id <= 0 || bombTexture.id <= 0 || lareiTexture.id <= 0) {
+    if (bossTexture.id <= 0 || playerTexture.id <= 0 || bombTexture.id <= 0 ||
+        lareiTexture.id <= 0) {
         TraceLog(LOG_ERROR, "Failed to load textures");
         setGameState(GAME_ERROR_TEXTURE);
         return;
@@ -96,15 +90,18 @@ void Game::reset()
     isShaking = false;
     isPaused = false;
 
-    if (player) player->init();
-    if (boss) boss->init();
+    if (player)
+        player->init();
+    if (boss)
+        boss->init();
 
     StopMusicStream(bgMusic);
 }
 
 void Game::update()
 {
-    if (isPaused) return; // do not update if paused
+    if (isPaused)
+        return; // do not update if paused
 
     bool shouldPlay = (gameState == PLAYING && !isMuted);
 
@@ -120,52 +117,63 @@ void Game::update()
         Input::unlockMouse();
         if (lastGameState != PLAYING) {
             TraceLog(LOG_INFO, "Game started");
-            #ifdef __linux__
+#ifdef __linux__
             discordActivity.state = getDifficultyName(currentDifficulty);
             discordActivity.details = "Kurdistani Bombaliyor";
             discordActivity.startTimestamp = timeStart / 1000;
-            if (discord.connected) DiscordRPC_setActivity(&discord, &discordActivity);
-            #endif
+            if (discord.connected)
+                DiscordRPC_setActivity(&discord, &discordActivity);
+#endif
         }
 
         updateTimers();
-        if (player) player->update();
-        if (boss) boss->update(GetFrameTime());
+        if (player)
+            player->update();
+        if (boss)
+            boss->update(GetFrameTime());
 
         // we are not using elements.erase(elements.begin() + i) because it has O(n²) complexity
         // instead we are using std::remove_if to remove all inactive elements
 
         // update boss attacks
         for (size_t i = 0; i < bossAttacks.size(); ++i) {
-            BossAttack& attack = *bossAttacks[i];
+            BossAttack &attack = *bossAttacks[i];
             attack.update(*player);
             if (!attack.isAlive()) {
-                bossAttacks.erase(std::remove_if(bossAttacks.begin(), bossAttacks.end(), [](auto& attack) { return !attack->isAlive(); }), bossAttacks.end());
+                bossAttacks.erase(std::remove_if(bossAttacks.begin(), bossAttacks.end(),
+                                                 [](auto &attack) { return !attack->isAlive(); }),
+                                  bossAttacks.end());
                 --i;
             }
         }
 
         // update bombs
         for (size_t i = 0; i < bombs.size(); ++i) {
-            Bomb& bomb = *bombs[i];
+            Bomb &bomb = *bombs[i];
             bomb.update(*player, *boss, GetFrameTime());
             if (!bomb.isAlive()) {
-                bombs.erase(std::remove_if(bombs.begin(), bombs.end(), [](auto& bomb) { return !bomb->isAlive(); }), bombs.end());
+                bombs.erase(std::remove_if(bombs.begin(), bombs.end(),
+                                           [](auto &bomb) { return !bomb->isAlive(); }),
+                            bombs.end());
                 --i;
             }
         }
 
-        if (player->health <= 0.f) setGameState(GAME_OVER);
-        if (boss->health <= 0.f)   setGameState(WIN);
+        if (player->health <= 0.f)
+            setGameState(GAME_OVER);
+        if (boss->health <= 0.f)
+            setGameState(WIN);
 
         // shake the window
         if (isShaking) {
             const float remainingTime = shakeEndTime - GetTime();
             if (remainingTime > 0) {
-                const float duration = shakeEndTime - (shakeEndTime - remainingTime); // shake duration
-                const float progress = remainingTime / duration; // shake progress
+                const float duration =
+                    shakeEndTime - (shakeEndTime - remainingTime); // shake duration
+                const float progress = remainingTime / duration;   // shake progress
 
-                const float currentIntensity = shakeIntensity * progress; // intensity decreases over time
+                const float currentIntensity =
+                    shakeIntensity * progress; // intensity decreases over time
 
                 // we are using a random angle to shake the window
                 // shake the window in a circle
@@ -173,10 +181,7 @@ void Game::update()
                 float offsetX = cosf(angle) * currentIntensity;
                 float offsetY = sinf(angle) * currentIntensity;
 
-                SetWindowPosition(
-                    windowPos.x + offsetX,
-                    windowPos.y + offsetY
-                );
+                SetWindowPosition(windowPos.x + offsetX, windowPos.y + offsetY);
             } else {
                 // reset window position
                 SetWindowPosition(windowPos.x, windowPos.y);
@@ -188,30 +193,33 @@ void Game::update()
     }
     if (gameState == MAIN_MENU && lastGameState != MAIN_MENU) {
         TraceLog(LOG_INFO, "Main menu");
-        #ifdef __linux__
+#ifdef __linux__
         discordActivity.state = "Ana menude";
         discordActivity.details = nullptr;
         discordActivity.startTimestamp = GetTime() / 1000;
-        if (discord.connected) DiscordRPC_setActivity(&discord, &discordActivity);
-        #endif
+        if (discord.connected)
+            DiscordRPC_setActivity(&discord, &discordActivity);
+#endif
     }
     if (gameState == WIN && lastGameState != WIN) {
         TraceLog(LOG_INFO, "Game won");
-        #ifdef __linux__
+#ifdef __linux__
         discordActivity.state = getDifficultyName(currentDifficulty);
         discordActivity.details = "Ankara kurtarildi!";
         discordActivity.startTimestamp = GetTime() / 1000;
-        if (discord.connected) DiscordRPC_setActivity(&discord, &discordActivity);
-        #endif
+        if (discord.connected)
+            DiscordRPC_setActivity(&discord, &discordActivity);
+#endif
     }
     if (gameState == GAME_OVER && lastGameState != GAME_OVER) {
         TraceLog(LOG_INFO, "Game over");
-        #ifdef __linux__
+#ifdef __linux__
         discordActivity.state = getDifficultyName(currentDifficulty);
         discordActivity.details = "Ankara dustu!";
         discordActivity.startTimestamp = GetTime() / 1000;
-        if (discord.connected) DiscordRPC_setActivity(&discord, &discordActivity);
-        #endif
+        if (discord.connected)
+            DiscordRPC_setActivity(&discord, &discordActivity);
+#endif
     }
     lastGameState = gameState;
 }
@@ -219,12 +227,14 @@ void Game::update()
 void Game::draw()
 {
     BeginDrawing();
-    ClearBackground(Color{ 10, 10, 10, 255 });
+    ClearBackground(Color{10, 10, 10, 255});
 
     switch (gameState) {
         case PLAYING:
-            for (const auto& bomb : bombs) bomb->draw();
-            for (const auto& attack : bossAttacks) attack->draw();
+            for (const auto &bomb : bombs)
+                bomb->draw();
+            for (const auto &attack : bossAttacks)
+                attack->draw();
 
             boss->draw();
             player->draw();
@@ -232,84 +242,135 @@ void Game::draw()
             // we are using DrawText instead of drawTextCenter to avoid text scaling issues
 
             // draw menu items
-            DrawText(TextFormat("Time: %s", formatTime()), GetScreenWidth() - TEXT_HEIGHT * 6, TEXT_HEIGHT * 0.5, 20, WHITE);
-            DrawText(TextFormat("FPS: %d", GetFPS()), GetScreenWidth() - TEXT_HEIGHT * 3, GetScreenHeight() - TEXT_HEIGHT, 18, WHITE);
+            DrawText(TextFormat("Time: %s", formatTime()), GetScreenWidth() - TEXT_HEIGHT * 6,
+                     TEXT_HEIGHT * 0.5, 20, WHITE);
+            DrawText(TextFormat("FPS: %d", GetFPS()), GetScreenWidth() - TEXT_HEIGHT * 3,
+                     GetScreenHeight() - TEXT_HEIGHT, 18, WHITE);
             if (isPaused) {
                 // blink effect
-                if (fmod(GetTime(), 1.0f) < 0.5f) drawTextCenter("PAUSED", SCREEN_DRAW_X, SCREEN_DRAW_Y, 40, WHITE);
+                if (fmod(GetTime(), 1.0f) < 0.5f)
+                    drawTextCenter("PAUSED", SCREEN_DRAW_X, SCREEN_DRAW_Y, 40, WHITE);
             }
             break;
         case GAME_OVER:
-            drawTextCenter("Beceriksizsin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20, RED);
-            drawTextCenter("Senin yuzunden kurtler bagimsizlasip isyan cikartti ve", SCREEN_DRAW_X, SCREEN_DRAW_Y, 20, WHITE);
-            drawTextCenter("baskent Ankara dustu, Allah belani versin.", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT, 20, WHITE);
-            drawTextCenter("Adam gibi oynayacaksan R'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 4, 20, WHITE);
-            drawTextCenter("Kurt isen ESC atabilirsin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20, WHITE);
+            drawTextCenter("Beceriksizsin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
+                           RED);
+            drawTextCenter("Senin yuzunden kurtler bagimsizlasip isyan cikartti ve", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y, 20, WHITE);
+            drawTextCenter("baskent Ankara dustu, Allah belani versin.", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT, 20, WHITE);
+            drawTextCenter("Adam gibi oynayacaksan R'ye bas", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 4, 20, WHITE);
+            drawTextCenter("Kurt isen ESC atabilirsin", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20, WHITE);
             break;
         case WIN:
-            drawTextCenter("Helal Olsun!", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20, GREEN);
-            drawTextCenter("Senin sayende xtinfirev ve kurtler dalgayi aldi!", SCREEN_DRAW_X, SCREEN_DRAW_Y, 20, WHITE);
-            drawTextCenter("Artik Turkiye Cumhuriyeti cok daha mutlu bir devlet olabilir", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT, 20, WHITE);
-            drawTextCenter("YASASIN TURKIYE CUMHURIYETI!", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20, RED);
-            drawTextCenter("Kurdistani tekrar bombalamak icin R'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 4, 20, WHITE);
-            drawTextCenter("Mutlu bir sekilde ayrilmak icin ESC'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20, WHITE);
-            drawTextCenter(TextFormat("Bombalanan Sure: %s", formatTime()), SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, WHITE);
-            drawTextCombined(SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20, "Oyun Modu:", WHITE, getDifficultyName(currentDifficulty), (currentDifficulty == EASY) ? GREEN : (currentDifficulty == NORMAL) ? YELLOW : DARKRED);
+            drawTextCenter("Helal Olsun!", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
+                           GREEN);
+            drawTextCenter("Senin sayende xtinfirev ve kurtler dalgayi aldi!", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y, 20, WHITE);
+            drawTextCenter("Artik Turkiye Cumhuriyeti cok daha mutlu bir devlet olabilir",
+                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT, 20, WHITE);
+            drawTextCenter("YASASIN TURKIYE CUMHURIYETI!", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20, RED);
+            drawTextCenter("Kurdistani tekrar bombalamak icin R'ye bas", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 4, 20, WHITE);
+            drawTextCenter("Mutlu bir sekilde ayrilmak icin ESC'ye bas", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20, WHITE);
+            drawTextCenter(TextFormat("Bombalanan Sure: %s", formatTime()), SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, WHITE);
+            drawTextCombined(SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20,
+                             "Oyun Modu:", WHITE, getDifficultyName(currentDifficulty),
+                             (currentDifficulty == EASY)     ? GREEN
+                             : (currentDifficulty == NORMAL) ? YELLOW
+                                                             : DARKRED);
             break;
         case MAIN_MENU:
-            drawTextCenter("Kurdistan Bombalayici", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -4, 20, WHITE);
-            drawTextCenter("Bu bir oyun projesidir tamamiyla eglence amaciyla uretilmistir", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -3, 20, GRAY);
+            drawTextCenter("Kurdistan Bombalayici", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -4,
+                           20, WHITE);
+            drawTextCenter("Bu bir oyun projesidir tamamiyla eglence amaciyla uretilmistir",
+                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -3, 20, GRAY);
             // select difficulty
-            drawTextCenter("Zorluk Seçin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -1, 20, WHITE);
-            drawTextCenter("1. Kurt vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20, GREEN);
-            drawTextCenter("2. Turk vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20, YELLOW);
-            drawTextCenter("3. ULKUCU VATANDAS", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20, DARKRED);
+            drawTextCenter("Zorluk Seçin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -1, 20,
+                           WHITE);
+            drawTextCenter("1. Kurt vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20,
+                           GREEN);
+            drawTextCenter("2. Turk vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20,
+                           YELLOW);
+            drawTextCenter("3. ULKUCU VATANDAS", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20,
+                           DARKRED);
 
             // draw a (-) to indicate the current difficulty
             if (currentDifficulty == EASY) {
                 drawTextCenter("-", SCREEN_DRAW_X - 95, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20, GREEN);
             } else if (currentDifficulty == NORMAL) {
-                drawTextCenter("-", SCREEN_DRAW_X - 100, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20, YELLOW);
+                drawTextCenter("-", SCREEN_DRAW_X - 100, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20,
+                               YELLOW);
             } else if (currentDifficulty == HARD) {
-                drawTextCenter("-", SCREEN_DRAW_X - 125, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20, DARKRED);
+                drawTextCenter("-", SCREEN_DRAW_X - 125, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20,
+                               DARKRED);
             }
 
-            drawTextCenter("Cikmak icin ESC'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20, WHITE);
-            drawTextCenter("Secim yapmak icin ok tuslarini ya da 1, 2 veya 3'u kullanabilirsin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 6, 20, GRAY);
-            drawTextCenter("Oyuna baslamak icin SPACE veya ENTER'a bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, GRAY);
-            drawTextCenter("Yapimcilar ve ozel tesekkurler icin C'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20, GRAY);
+            drawTextCenter("Cikmak icin ESC'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 5,
+                           20, WHITE);
+            drawTextCenter("Secim yapmak icin ok tuslarini ya da 1, 2 veya 3'u kullanabilirsin",
+                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 6, 20, GRAY);
+            drawTextCenter("Oyuna baslamak icin SPACE veya ENTER'a bas", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, GRAY);
+            drawTextCenter("Yapimcilar ve ozel tesekkurler icin C'ye bas", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20, GRAY);
 
-            drawTextCenter("M ile sesi ac/kapat", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 10, 20, isMuted ? GRAY : WHITE);
+            drawTextCenter("M ile sesi ac/kapat", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 10,
+                           20, isMuted ? GRAY : WHITE);
 
             if (currentDifficulty == HARD) {
-                drawTextCenter("sana guveniyoruz kaptan", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 11, 20, DARKRED);
+                drawTextCenter("sana guveniyoruz kaptan", SCREEN_DRAW_X,
+                               SCREEN_DRAW_Y + TEXT_HEIGHT * 11, 20, DARKRED);
             }
             break;
         case MENU_CREDITS:
-            marqueeText("TesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurler", SCREEN_DRAW_Y + TEXT_HEIGHT * -8, 20, WHITE, 80.f);
-            drawTextCenter("Herkese ayri ayri tesekkurlerimi sunuyorum siz olmasaniz", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -6, 20, GRAY);
-            drawTextCenter("BombKurdistan projesi bu kadar gelisemezdi <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -5, 20, GRAY);
-            drawTextCenter("(dunyanin en iyi oyun projesi)", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -4, 20, GRAY);
+            marqueeText("TesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkur"
+                        "lerTesekkurler",
+                        SCREEN_DRAW_Y + TEXT_HEIGHT * -8, 20, WHITE, 80.f);
+            drawTextCenter("Herkese ayri ayri tesekkurlerimi sunuyorum siz olmasaniz",
+                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -6, 20, GRAY);
+            drawTextCenter("BombKurdistan projesi bu kadar gelisemezdi <3", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * -5, 20, GRAY);
+            drawTextCenter("(dunyanin en iyi oyun projesi)", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * -4, 20, GRAY);
 
             drawTextCenter("larei <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20, WHITE);
             drawTextCenter("kosero <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -1, 20, WHITE);
-            drawTextCenter("yesil asya <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 0, 20, WHITE);
-            drawTextCenter("toby fox <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20, WHITE);
-            
-            drawTextCenter("Dosya kaynakcasi:", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20, WHITE);
-            drawTextCenter("boss.png: wikipedia (goruntude oynadim azcik)", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 4, 20, GRAY);
-            drawTextCenter("bomb.png: stardew valley", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20, GRAY);
-            drawTextCenter("player.png: undertale", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 6, 20, GRAY);
-            drawTextCenter("bg_music.mp3: larei atmisti bir youtube videosundan alinti", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, GRAY);
-            drawTextCenter("larei.png: larei.", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20, GRAY);
+            drawTextCenter("yesil asya <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 0, 20,
+                           WHITE);
+            drawTextCenter("toby fox <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20,
+                           WHITE);
 
-            drawTextCenter("Ana menu icin ESC'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 10, 20, WHITE);
+            drawTextCenter("Dosya kaynakcasi:", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20,
+                           WHITE);
+            drawTextCenter("boss.png: wikipedia (goruntude oynadim azcik)", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 4, 20, GRAY);
+            drawTextCenter("bomb.png: stardew valley", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20, GRAY);
+            drawTextCenter("player.png: undertale", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 6,
+                           20, GRAY);
+            drawTextCenter("bg_music.mp3: larei atmisti bir youtube videosundan alinti",
+                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, GRAY);
+            drawTextCenter("larei.png: larei.", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20,
+                           GRAY);
+
+            drawTextCenter("Ana menu icin ESC'ye bas", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 10, 20, WHITE);
             break;
         case GAME_ERROR_TEXTURE:
-            drawTextCenter("Bir hata olustu", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20, RED);
-            drawTextCenter("Gerekli dosyalar eksik veya bozuk", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 0, 20, WHITE);
-            drawTextCenter("Lutfen dosyalari kontrol edin ve tekrar deneyin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20, WHITE);
-            drawTextCenter("Oyunun ve assets klasorunun ayni konumda oldugundan emin olun", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20, WHITE);
+            drawTextCenter("Bir hata olustu", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
+                           RED);
+            drawTextCenter("Gerekli dosyalar eksik veya bozuk", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 0, 20, WHITE);
+            drawTextCenter("Lutfen dosyalari kontrol edin ve tekrar deneyin", SCREEN_DRAW_X,
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20, WHITE);
+            drawTextCenter("Oyunun ve assets klasorunun ayni konumda oldugundan emin olun",
+                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20, WHITE);
             break;
         default:
             break;
@@ -323,8 +384,10 @@ void Game::handleInput()
     // gamepad Square button
     if (Input::isMusicMuted()) {
         isMuted = !isMuted;
-        if (isMuted) StopMusicStream(bgMusic);
-        else if (gameState == PLAYING) PlayMusicStream(bgMusic);
+        if (isMuted)
+            StopMusicStream(bgMusic);
+        else if (gameState == PLAYING)
+            PlayMusicStream(bgMusic);
     }
 
     switch (gameState) {
@@ -349,16 +412,22 @@ void Game::handleInput()
                     PlayMusicStream(bgMusic);
                 }
             }
-            #ifdef DEBUG_MODE
-            if (Input::isKeyPressed(KEY_I)) setGameState(WIN);
-            if (Input::isKeyPressed(KEY_O)) setGameState(GAME_OVER);
-            if (Input::isKeyPressed(KEY_B)) spawnBomb();
-            #endif
+#ifdef DEBUG_MODE
+            if (Input::isKeyPressed(KEY_I))
+                setGameState(WIN);
+            if (Input::isKeyPressed(KEY_O))
+                setGameState(GAME_OVER);
+            if (Input::isKeyPressed(KEY_B))
+                spawnBomb();
+#endif
             break;
         case MAIN_MENU:
-            if (Input::isKeyPressed(KEY_ONE)) currentDifficulty = EASY;
-            if (Input::isKeyPressed(KEY_TWO)) currentDifficulty = NORMAL;
-            if (Input::isKeyPressed(KEY_THREE)) currentDifficulty = HARD;
+            if (Input::isKeyPressed(KEY_ONE))
+                currentDifficulty = EASY;
+            if (Input::isKeyPressed(KEY_TWO))
+                currentDifficulty = NORMAL;
+            if (Input::isKeyPressed(KEY_THREE))
+                currentDifficulty = HARD;
             if (Input::isEscapeKey()) {
                 cleanup();
                 return;
@@ -368,10 +437,10 @@ void Game::handleInput()
                 setGameState(PLAYING);
             }
             if (Input::isArrowUp()) {
-                currentDifficulty = (Difficulty)((currentDifficulty + 2) % 3);
+                currentDifficulty = (Difficulty) ((currentDifficulty + 2) % 3);
             }
             if (Input::isArrowDown()) {
-                currentDifficulty = (Difficulty)((currentDifficulty + 1) % 3);
+                currentDifficulty = (Difficulty) ((currentDifficulty + 1) % 3);
             }
             if (Input::isCreditsKey()) {
                 setGameState(MENU_CREDITS);
@@ -380,9 +449,15 @@ void Game::handleInput()
             if (Input::isLeftButton()) {
                 Vector2 mousePos = GetMousePosition();
                 if (mousePos.x >= SCREEN_DRAW_X - 100 && mousePos.x <= SCREEN_DRAW_X + 100) {
-                    if (mousePos.y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 1 && mousePos.y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 2) currentDifficulty = EASY;
-                    else if (mousePos.y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 2 && mousePos.y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 3) currentDifficulty = NORMAL;
-                    else if (mousePos.y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 3 && mousePos.y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 4) currentDifficulty = HARD;
+                    if (mousePos.y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 1 &&
+                        mousePos.y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 2)
+                        currentDifficulty = EASY;
+                    else if (mousePos.y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 2 &&
+                             mousePos.y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 3)
+                        currentDifficulty = NORMAL;
+                    else if (mousePos.y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 3 &&
+                             mousePos.y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 4)
+                        currentDifficulty = HARD;
                     Input::lockMouse();
                     reset();
                     setGameState(PLAYING);
@@ -426,7 +501,8 @@ void Game::updateFrame()
 
 void Game::cleanup()
 {
-    if (shouldClose) return;
+    if (shouldClose)
+        return;
     // player and boss are unique_ptrs, so we don't need to delete them
 
     TraceLog(LOG_INFO, "Cleaning up game resources");
@@ -437,9 +513,10 @@ void Game::cleanup()
     UnloadTexture(lareiTexture);
     UnloadMusicStream(bgMusic);
     CloseAudioDevice();
-    #ifdef __linux__
-    if (discord.connected) DiscordRPC_shutdown(&discord);
-    #endif
+#ifdef __linux__
+    if (discord.connected)
+        DiscordRPC_shutdown(&discord);
+#endif
 
     shouldClose = true;
 }
@@ -451,16 +528,20 @@ void Game::updateTimers()
 
     // spawn attacks
     if (attackTimer >= 0.5f) {
-        if (GetRandomValue(0, 1) == 0 && (currentDifficulty != HARD ? bossAttacks.size() <= 3 : true)) { // 50%
-            int attackCount = GetRandomValue(1, (currentDifficulty == EASY) ? 2 : (currentDifficulty == NORMAL) ? 3 : 5);
-            for (int j = 0; j < attackCount; ++j) createAttack();
+        if (GetRandomValue(0, 1) == 0 &&
+            (currentDifficulty != HARD ? bossAttacks.size() <= 3 : true)) { // 50%
+            const int max = (currentDifficulty == EASY) ? 2 : (currentDifficulty == NORMAL) ? 3 : 5;
+            const int attackCount = GetRandomValue(1, max);
+            for (int j = 0; j < attackCount; ++j)
+                createAttack();
         }
         attackTimer = 0.f;
     }
 
     // spawn bombs randomly
     if (bombTimer >= 5.f) {
-        if (GetRandomValue(0, 2) == 0) spawnBomb(); // 33%
+        if (GetRandomValue(0, 2) == 0)
+            spawnBomb(); // 33%
         bombTimer = 0.f;
     }
 }
@@ -474,18 +555,16 @@ void Game::createAttack()
     const float attackAreaWidth = movementBounds.right - movementBounds.left;
     const float attackAreaHeight = movementBounds.top;
 
-    Vector2 playerCenter = {
-        player->position.x + player->texture.width / 2.f,
-        player->position.y + player->texture.height / 2.f
-    };
+    Vector2 playerCenter = {player->position.x + player->texture.width / 2.f,
+                            player->position.y + player->texture.height / 2.f};
 
-    Vector2 attackPos = {
-        playerCenter.x + direction.x * attackAreaWidth / 2.f,
-        playerCenter.y + direction.y * attackAreaHeight/ 2.f
-    };
+    Vector2 attackPos = {playerCenter.x + direction.x * attackAreaWidth / 2.f,
+                         playerCenter.y + direction.y * attackAreaHeight / 2.f};
 
-    attackPos.x = std::clamp(attackPos.x, playerCenter.x - attackAreaWidth / 2.f, playerCenter.x + attackAreaWidth / 2.f);
-    attackPos.y = std::clamp(attackPos.y, playerCenter.y - attackAreaHeight / 2.f, playerCenter.y + attackAreaHeight / 2.f);
+    attackPos.x = std::clamp(attackPos.x, playerCenter.x - attackAreaWidth / 2.f,
+                             playerCenter.x + attackAreaWidth / 2.f);
+    attackPos.y = std::clamp(attackPos.y, playerCenter.y - attackAreaHeight / 2.f,
+                             playerCenter.y + attackAreaHeight / 2.f);
 
     attackPos.x += GetRandomValue(-ATTACK_OFFSET, ATTACK_OFFSET);
     attackPos.y += GetRandomValue(-ATTACK_OFFSET, ATTACK_OFFSET);
@@ -499,21 +578,15 @@ void Game::spawnBomb()
 {
     Vector2 bombPos = {
         static_cast<float>(GetRandomValue(movementBounds.left, movementBounds.right)),
-        static_cast<float>(GetRandomValue(movementBounds.top, movementBounds.bottom))
-    };
+        static_cast<float>(GetRandomValue(movementBounds.top, movementBounds.bottom))};
 
     bombs.emplace_back(std::make_unique<Bomb>(
-        bombTexture,
-        Vector2{
-            static_cast<float>(bombPos.x),
-            static_cast<float>(bombPos.y)
-        }
-    ));
+        bombTexture, Vector2{static_cast<float>(bombPos.x), static_cast<float>(bombPos.y)}));
 
     TraceLog(LOG_INFO, "Bomb spawned at position: (%f, %f)", bombPos.x, bombPos.y);
 }
 
-void Game::shakeWindow(float duration, float intensity) 
+void Game::shakeWindow(float duration, float intensity)
 {
     windowPos = GetWindowPosition();
     shakeEndTime = GetTime() + duration;
@@ -521,13 +594,19 @@ void Game::shakeWindow(float duration, float intensity)
     isShaking = true;
 }
 
-void Game::drawTextCenter(const char* text, float x, float y, float fontSize, Color color)
+void Game::drawTextCenter(const char *text, float x, float y, float fontSize, Color color)
 {
     Vector2 textSize = MeasureTextEx(GetFontDefault(), text, fontSize, 1.f);
     DrawText(text, x - textSize.x / 2, y - textSize.y / 2, fontSize, color);
 }
 
-void Game::drawTextCombined(float x, float y, float fontSize, const char* text1, Color color1, const char* text2, Color color2)
+void Game::drawTextCombined(float x,
+                            float y,
+                            float fontSize,
+                            const char *text1,
+                            Color color1,
+                            const char *text2,
+                            Color color2)
 {
     Vector2 text1Vector = MeasureTextEx(GetFontDefault(), text1, fontSize, 1.f);
     Vector2 text2Vector = MeasureTextEx(GetFontDefault(), text2, fontSize, 1.f);
@@ -542,20 +621,21 @@ void Game::drawTextCombined(float x, float y, float fontSize, const char* text1,
     DrawText(text2, startX + text1Vector.x + spaceWidth, startY, fontSize, color2);
 }
 
-void Game::marqueeText(const char* text, float y, float fontSize, Color color, float speed)
+void Game::marqueeText(const char *text, float y, float fontSize, Color color, float speed)
 {
     static float x = 0;
     int textWidth = MeasureText(text, fontSize);
 
     x -= speed * GetFrameTime();
 
-    if (x < -textWidth) x += textWidth;
+    if (x < -textWidth)
+        x += textWidth;
 
     DrawText(text, x, y, fontSize, color);
     DrawText(text, x + textWidth, y, fontSize, color);
 }
 
-const char* Game::formatTime()
+const char *Game::formatTime()
 {
     float timeElapsed = (timeEnd > 0 ? timeEnd : GetTime()) - timeStart;
     int minutes = static_cast<int>(timeElapsed / 60);

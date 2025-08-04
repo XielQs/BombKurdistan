@@ -2,27 +2,19 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
-#include <vector>
-#include <memory>
-#include <math.h>
 #include "raylib.h"
+#include <math.h>
+#include <memory>
+#include <vector>
 #ifdef __linux__
 #include <discordrpc.h>
 #endif
-#include "Player.hpp"
-#include "Boss.hpp"
 #include "Bomb.hpp"
+#include "Boss.hpp"
 #include "BossAttack.hpp"
+#include "Player.hpp"
 
-enum GameState
-{
-    PLAYING,
-    GAME_OVER,
-    MAIN_MENU,
-    MENU_CREDITS,
-    GAME_ERROR_TEXTURE,
-    WIN
-};
+enum GameState { PLAYING, GAME_OVER, MAIN_MENU, MENU_CREDITS, GAME_ERROR_TEXTURE, WIN };
 
 class Game
 {
@@ -48,10 +40,10 @@ private:
     GameState gameState;
     // we set it to PLAYING as Game::update() needs to be called at least once with MAIN_MENU state
     GameState lastGameState = PLAYING;
-    #ifdef __linux__
+#ifdef __linux__
     DiscordRPC discord;
     DiscordActivity discordActivity;
-    #endif
+#endif
     bool isMuted;
     float bombTimer;
     float attackTimer;
@@ -73,10 +65,16 @@ private:
 
     void createAttack();
     void spawnBomb();
-    void drawTextCenter(const char* text, float x, float y, float fontSize, Color color);
-    void drawTextCombined(float x, float y, float fontSize, const char* text1, Color color1, const char* text2, Color color2);
-    void marqueeText(const char* text, float y, float fontSize, Color color, float speed);
-    const char* formatTime();
+    void drawTextCenter(const char *text, float x, float y, float fontSize, Color color);
+    void drawTextCombined(float x,
+                          float y,
+                          float fontSize,
+                          const char *text1,
+                          Color color1,
+                          const char *text2,
+                          Color color2);
+    void marqueeText(const char *text, float y, float fontSize, Color color, float speed);
+    const char *formatTime();
 };
 
 #endif // GAME_HPP

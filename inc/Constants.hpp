@@ -26,25 +26,24 @@
 
 #define SCREEN_DRAW_X (SCREEN_WIDTH / 2.f)
 #define SCREEN_DRAW_Y (SCREEN_HEIGHT / 2.f)
-#define DARKRED (Color){ 139, 0, 0, 255 }
+#define DARKRED (Color){139, 0, 0, 255}
 
-namespace BossAttackConfig
-{
-    constexpr float EASY_FACTOR = 0.8f;
-    constexpr float NORMAL_FACTOR = 1.0f;
-    constexpr float HARD_FACTOR = 1.5f;
+namespace BossAttackConfig {
+constexpr float EASY_FACTOR = 0.8f;
+constexpr float NORMAL_FACTOR = 1.0f;
+constexpr float HARD_FACTOR = 1.5f;
 
-    constexpr float SMALL_EXPLODE_TIME = 0.5f;
-    constexpr float MEDIUM_EXPLODE_TIME = 1.0f;
-    constexpr float LARGE_EXPLODE_TIME = 1.5f;
+constexpr float SMALL_EXPLODE_TIME = 0.5f;
+constexpr float MEDIUM_EXPLODE_TIME = 1.0f;
+constexpr float LARGE_EXPLODE_TIME = 1.5f;
 
-    constexpr int SMALL_BULLET_COUNT = 8;
-    constexpr int MEDIUM_BULLET_COUNT = 10;
-    constexpr int LARGE_BULLET_COUNT = 12;
+constexpr int SMALL_BULLET_COUNT = 8;
+constexpr int MEDIUM_BULLET_COUNT = 10;
+constexpr int LARGE_BULLET_COUNT = 12;
 
-    constexpr int SMALL_BULLET_SPEED = 6;
-    constexpr int MEDIUM_BULLET_SPEED = 4;
-    constexpr int LARGE_BULLET_SPEED = 3;
-}
+constexpr int SMALL_BULLET_SPEED = 6;
+constexpr int MEDIUM_BULLET_SPEED = 4;
+constexpr int LARGE_BULLET_SPEED = 3;
+} // namespace BossAttackConfig
 
 #endif

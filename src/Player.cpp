@@ -1,19 +1,19 @@
-#include "GlobalBounds.hpp"
-#include "Constants.hpp"
 #include "Player.hpp"
+#include "Constants.hpp"
+#include "GlobalBounds.hpp"
 #include "Input.hpp"
+#include "raylib.h"
 #include "raymath.h"
 #include <algorithm>
-#include "raylib.h"
 #include <cmath>
 
-Player::Player(Texture2D texture):
-    texture(texture)
+Player::Player(Texture2D texture) : texture(texture)
 {
     init();
 }
 
-void Player::init() {
+void Player::init()
+{
     health = PLAYER_HEALTH;
     position = {GetScreenWidth() / 2.f, GetScreenHeight() / 2.f};
     previousPosition = position;
@@ -22,40 +22,34 @@ void Player::init() {
 
 void Player::draw()
 {
-    const Rectangle src = { 0.f, 0.f, static_cast<float>(texture.width), static_cast<float>(texture.height) };
-    const Rectangle dest = {
-        position.x,
-        position.y,
-        PLAYER_SIZE,
-        PLAYER_SIZE
-    };
+    const Rectangle src = {0.f, 0.f, static_cast<float>(texture.width),
+                           static_cast<float>(texture.height)};
+    const Rectangle dest = {position.x, position.y, PLAYER_SIZE, PLAYER_SIZE};
 
-    DrawTexturePro(texture, src, dest, { PLAYER_SIZE / 2.f, PLAYER_SIZE / 2.f }, 0.f, WHITE);
+    DrawTexturePro(texture, src, dest, {PLAYER_SIZE / 2.f, PLAYER_SIZE / 2.f}, 0.f, WHITE);
 
     // draw health bar
     float healthBar = health / PLAYER_HEALTH;
     float barWidth = 130.f;
     float barHeight = 15.f;
-    DrawRectangle(SCREEN_DRAW_X - barWidth / 2, GetScreenHeight() - barHeight - 10.f, barWidth, barHeight, GRAY);
-    DrawRectangle(SCREEN_DRAW_X - barWidth / 2, GetScreenHeight() - barHeight - 10.f, barWidth * healthBar, barHeight, YELLOW);
+    DrawRectangle(SCREEN_DRAW_X - barWidth / 2, GetScreenHeight() - barHeight - 10.f, barWidth,
+                  barHeight, GRAY);
+    DrawRectangle(SCREEN_DRAW_X - barWidth / 2, GetScreenHeight() - barHeight - 10.f,
+                  barWidth * healthBar, barHeight, YELLOW);
 
-    DrawText(TextFormat("HP: %.0f", health), SCREEN_DRAW_X - barWidth / 2 + 5.f, GetScreenHeight() - barHeight - 10.f + 2.f, 10, DARKGRAY);
+    DrawText(TextFormat("HP: %.0f", health), SCREEN_DRAW_X - barWidth / 2 + 5.f,
+             GetScreenHeight() - barHeight - 10.f + 2.f, 10, DARKGRAY);
 
-    #ifdef DEBUG_MODE
+#ifdef DEBUG_MODE
     // draw invisible bounds
-    DrawRectangleLinesEx(
-        (Rectangle){
-            movementBounds.left - PLAYER_SIZE,
-            movementBounds.top - PLAYER_SIZE,
-            movementBounds.right - movementBounds.left + PLAYER_SIZE * 2,
-            movementBounds.bottom - movementBounds.top + PLAYER_SIZE * 2
-        },
-        2.f,
-        RED
-    );
+    DrawRectangleLinesEx((Rectangle) {movementBounds.left - PLAYER_SIZE,
+                                      movementBounds.top - PLAYER_SIZE,
+                                      movementBounds.right - movementBounds.left + PLAYER_SIZE * 2,
+                                      movementBounds.bottom - movementBounds.top + PLAYER_SIZE * 2},
+                         2.f, RED);
     // draw player bounds
     DrawCircleLinesV(position, PLAYER_COLLISION_RADIUS, BLUE);
-    #endif
+#endif
 }
 
 void Player::update()
@@ -70,10 +64,8 @@ void Player::update()
 
     // add gamepad support
     if (IsGamepadAvailable(0)) {
-        Vector2 gamepadAxis = {
-            GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X),
-            GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_Y)
-        };
+        Vector2 gamepadAxis = {GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_X),
+                               GetGamepadAxisMovement(0, GAMEPAD_AXIS_LEFT_Y)};
 
         if (Vector2LengthSqr(gamepadAxis) > 0.01f) {
             input.x += gamepadAxis.x;
@@ -117,21 +109,21 @@ void Player::update()
     position.x = std::clamp(position.x, movementBounds.left, movementBounds.right);
     position.y = std::clamp(position.y, movementBounds.top, movementBounds.bottom);
 
-    velocity = { position.x - previousPosition.x, position.y - previousPosition.y };
+    velocity = {position.x - previousPosition.x, position.y - previousPosition.y};
 }
 
 void Player::takeDamage(float damage)
 {
     health = fmax(health - damage, 0.0f);
 
-    // we are currently using GLFW instead of SDL2
-    // the only backend that supports gamepad vibration is SDL2
-    // so we are using this code to make it work on SDL2!!
-    #ifdef PLATFORM_DESKTOP_SDL
+// we are currently using GLFW instead of SDL2
+// the only backend that supports gamepad vibration is SDL2
+// so we are using this code to make it work only on SDL2!!
+#ifdef PLATFORM_DESKTOP_SDL
     if (IsGamepadAvailable(0)) {
         SetGamepadVibration(0, 0.7f, 0.7f, 0.2f);
     }
-    #endif
+#endif
 }
 
 void Player::resetMouseTarget()
