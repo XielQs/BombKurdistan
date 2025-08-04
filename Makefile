@@ -13,14 +13,14 @@ BUILD_DIR	= build
 RAYLIB_SRC	= $(LIB_DIR)/raylib/src
 RAYLIB		  = $(RAYLIB_SRC)/libraylib.a
 RAYLIB_WIN  = $(RAYLIB_SRC)/libraylib.win.a
-RAYLIB_WEB    = $(RAYLIB_SRC)/libraylib.web.a
+RAYLIB_WEB  = $(RAYLIB_SRC)/libraylib.web.a
 
 DISCORDRPC_SRC = $(LIB_DIR)/discordrpc
-DISCORDRPC	  = $(DISCORDRPC_SRC)/libdiscordrpc.a
+DISCORDRPC	   = $(DISCORDRPC_SRC)/libdiscordrpc.a
 
-EMSCRIPTEN    = emcc
-CXX			  = clang++
-CXXFLAGS	= -Wall -Wextra -g3 -ggdb3 -std=c++23 -MMD -MP \
+EMSCRIPTEN	= emcc
+CXX					= clang++
+CXXFLAGS 		= -Wall -Wextra -g3 -ggdb3 -std=c++23 -MMD -MP \
 			-I$(INC_DIR) -I$(RAYLIB_SRC) -Wno-missing-field-initializers
 LDFLAGS		= -L$(RAYLIB_SRC)
 RM			  = rm -rf
