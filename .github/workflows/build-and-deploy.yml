@@ -28,8 +28,9 @@ jobs:
       - name: Calculate version
         id: version
         run: |
-          MINOR_VERSION=$((${{ github.run_number }} / 100))  
-          PATCH_VERSION=$((${{ github.run_number }} % 100))
+          RUN_NUM=${{ github.run_number }}
+          MINOR_VERSION=$((${{ github.run_number }} / 10))
+          PATCH_VERSION=$((${{ github.run_number }} % 10))
           VERSION="${{ env.MAJOR_VERSION }}.${MINOR_VERSION}.${PATCH_VERSION}"
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Version will be: ${VERSION}"
