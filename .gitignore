@@ -1,5 +1,6 @@
 .vscode
-build*
+build
+build_windows
 dist
 compile_commands.json
 bombkurdistan*
