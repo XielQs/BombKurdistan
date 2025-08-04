@@ -1,8 +1,12 @@
+[![bombkurdistan-bin](https://img.shields.io/aur/version/bombkurdistan-bin?color=1793d1&label=bombkurdistan-bin&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/bombkurdistan-bin/)
+[![bombkurdistan-git](https://img.shields.io/aur/version/bombkurdistan-git?color=1793d1&label=bombkurdistan-git&logo=arch-linux&style=for-the-badge)](https://aur.archlinux.org/packages/bombkurdistan-git/)
+
 # Kurdistan bombalayici
 
 <img src="assets/icon.png" width="300" height="300" alt="bombkurdistan"/>
 
-Undertale tarzinda kurdistani bombaladigimiz bir oyun, tamamiyla zevk ve eglence amacli yapilmistir. Lutfen ciddiye almayiniz basimi belaya sokmayin!
+Undertale tarzinda kurdistani bombaladigimiz bir oyun, tamamiyla zevk ve eglence amacli yapilmistir. Lutfen ciddiye
+almayiniz basimi belaya sokmayin!
 
 Raylib kutuphanesini denemek istiyordum cok, raylibe baslamak isteyen varsa temel bir proje gibi dusunebilirsiniz.
 
@@ -10,9 +14,11 @@ Ve evet kodlarimin igrenc oldugunu biliyorum benim sucum degil...
 
 ## Download
 
-Eger ki build almak istemiyorsaniz direkt [releases](https://github.com/XielQs/BombKurdistan/releases) sayfasindan indirebilirsiniz.
+Eger ki build almak istemiyorsaniz direkt [releases](https://github.com/XielQs/BombKurdistan/releases) sayfasindan
+indirebilirsiniz.
 
-Platformunuza gore (Windows/Linux) `bombkurdistan_linux.zip` veya `bombkurdistan_windows.zip` dosyasini indirin ve zipten cikartin. Ardindan `./bombkurdistan` veya `./bombkurdistan.exe` dosyasini calistirabilirsiniz.
+Platformunuza gore (Windows/Linux) `bombkurdistan_linux.zip` veya `bombkurdistan_windows.zip` dosyasini indirin ve
+zipten cikartin. Ardindan `./bombkurdistan` veya `./bombkurdistan.exe` dosyasini calistirabilirsiniz.
 
 ## Build
 
@@ -21,7 +27,8 @@ git clone https://github.com/XielQs/BombKurdistan --recurse-submodules
 ```
 
 ```bash
-make -j
+chmod +x ./build.sh
+./build.sh
 ```
 
 ### Build for Windows
@@ -29,12 +36,14 @@ make -j
 Windows'dan windowsa build alamiyorsunuz uzgunum o yuzden linux!!!
 
 ```bash
-make windows -j
+chmod +x ./build.sh
+./build.sh -w
 ```
 
 ## Run
 
-Build aldiktan sonra oyunun bulundugu dizine platformunuza gore `./bombkurdistan` veya `./bombkurdistan.exe` olusacak, onu calistirabilirsiniz.
+Build aldiktan sonra oyunun bulundugu dizine platformunuza gore `./bombkurdistan` veya `./bombkurdistan.exe` olusacak,
+onu calistirabilirsiniz.
 
 ## Gameplay
 
