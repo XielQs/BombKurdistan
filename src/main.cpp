@@ -1,8 +1,9 @@
 #include "Game.hpp"
 
+Game game;
+
 int main()
 {
-    Game game;
     game.init();
 
     while (!game.shouldClose && !WindowShouldClose())
