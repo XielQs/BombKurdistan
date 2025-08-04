@@ -23,7 +23,6 @@ public:
     static bool isArrowDown();
     static void lockMouse();
     static void unlockMouse();
-    static void update();
 
 private:
     static bool isMouseLocked;

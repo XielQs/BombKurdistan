@@ -4,3 +4,4 @@ dist
 compile_commands.json
 bombkurdistan*
 .cache
+.idea

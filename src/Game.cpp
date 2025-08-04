@@ -4,9 +4,11 @@
 #include "GlobalBounds.hpp"
 #include "Input.hpp"
 #include "raylib.h"
+#include "raymath.h"
 #include <algorithm>
+#include <cmath>
+#include <cstring>
 #include <memory>
-#include <string.h>
 
 Game::Game()
     : player(nullptr), shouldClose(false), gameState(MAIN_MENU), isMuted(false), bombTimer(0.f),
@@ -28,12 +30,9 @@ void Game::init()
 #endif
 
 #ifdef __linux__
-    DiscordEventHandlers discordHandlers;
+    DiscordEventHandlers discordHandlers = {};
 
-    memset(&discordHandlers, 0, sizeof(discordHandlers));
-    memset(&discordActivity, 0, sizeof(discordActivity));
-
-    discordHandlers.disconnected = [](bool wasError) {
+    discordHandlers.disconnected = [](const bool wasError) {
         if (wasError) {
             TraceLog(LOG_ERROR, "Discord RPC disconnected with error");
         } else {
@@ -41,7 +40,7 @@ void Game::init()
         }
     };
 
-    discordHandlers.error = [](int errorCode, const char *message) {
+    discordHandlers.error = [](const int errorCode, const char *message) {
         TraceLog(LOG_ERROR, "Discord RPC error: %d - %s", errorCode, message);
     };
 
@@ -103,7 +102,7 @@ void Game::update()
     if (isPaused)
         return; // do not update if paused
 
-    bool shouldPlay = (gameState == PLAYING && !isMuted);
+    const bool shouldPlay = (gameState == PLAYING && !isMuted);
 
     if (shouldPlay && !IsMusicStreamPlaying(bgMusic)) {
         PlayMusicStream(bgMusic);
@@ -133,16 +132,14 @@ void Game::update()
             boss->update(GetFrameTime());
 
         // we are not using elements.erase(elements.begin() + i) because it has O(n²) complexity
-        // instead we are using std::remove_if to remove all inactive elements
+        // instead we are using std::erase_if to remove all inactive elements
 
         // update boss attacks
         for (size_t i = 0; i < bossAttacks.size(); ++i) {
             BossAttack &attack = *bossAttacks[i];
             attack.update(*player);
             if (!attack.isAlive()) {
-                bossAttacks.erase(std::remove_if(bossAttacks.begin(), bossAttacks.end(),
-                                                 [](auto &attack) { return !attack->isAlive(); }),
-                                  bossAttacks.end());
+                std::erase_if(bossAttacks, [](auto &attk) { return !attk->isAlive(); });
                 --i;
             }
         }
@@ -152,9 +149,7 @@ void Game::update()
             Bomb &bomb = *bombs[i];
             bomb.update(*player, *boss, GetFrameTime());
             if (!bomb.isAlive()) {
-                bombs.erase(std::remove_if(bombs.begin(), bombs.end(),
-                                           [](auto &bomb) { return !bomb->isAlive(); }),
-                            bombs.end());
+                std::erase_if(bombs, [](auto &bmb) { return !bmb->isAlive(); });
                 --i;
             }
         }
@@ -177,9 +172,9 @@ void Game::update()
 
                 // we are using a random angle to shake the window
                 // shake the window in a circle
-                float angle = GetRandomValue(0, 360) * DEG2RAD;
-                float offsetX = cosf(angle) * currentIntensity;
-                float offsetY = sinf(angle) * currentIntensity;
+                const float angle = GetRandomValue(0, 360) * DEG2RAD;
+                const float offsetX = cosf(angle) * currentIntensity;
+                const float offsetY = sinf(angle) * currentIntensity;
 
                 SetWindowPosition(windowPos.x + offsetX, windowPos.y + offsetY);
             } else {
@@ -224,7 +219,7 @@ void Game::update()
     lastGameState = gameState;
 }
 
-void Game::draw()
+void Game::draw() const
 {
     BeginDrawing();
     ClearBackground(Color{10, 10, 10, 255});
@@ -437,26 +432,26 @@ void Game::handleInput()
                 setGameState(PLAYING);
             }
             if (Input::isArrowUp()) {
-                currentDifficulty = (Difficulty) ((currentDifficulty + 2) % 3);
+                currentDifficulty = static_cast<Difficulty>((currentDifficulty + 2) % 3);
             }
             if (Input::isArrowDown()) {
-                currentDifficulty = (Difficulty) ((currentDifficulty + 1) % 3);
+                currentDifficulty = static_cast<Difficulty>((currentDifficulty + 1) % 3);
             }
             if (Input::isCreditsKey()) {
                 setGameState(MENU_CREDITS);
             }
             // select difficulty with mouse
             if (Input::isLeftButton()) {
-                Vector2 mousePos = GetMousePosition();
-                if (mousePos.x >= SCREEN_DRAW_X - 100 && mousePos.x <= SCREEN_DRAW_X + 100) {
-                    if (mousePos.y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 1 &&
-                        mousePos.y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 2)
+                const auto [x, y] = GetMousePosition();
+                if (x >= SCREEN_DRAW_X - 100 && x <= SCREEN_DRAW_X + 100) {
+                    if (y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 1 &&
+                        y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 2)
                         currentDifficulty = EASY;
-                    else if (mousePos.y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 2 &&
-                             mousePos.y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 3)
+                    else if (y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 2 &&
+                             y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 3)
                         currentDifficulty = NORMAL;
-                    else if (mousePos.y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 3 &&
-                             mousePos.y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 4)
+                    else if (y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 3 &&
+                             y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 4)
                         currentDifficulty = HARD;
                     Input::lockMouse();
                     reset();
@@ -548,18 +543,18 @@ void Game::updateTimers()
 
 void Game::createAttack()
 {
-    AttackSize size = static_cast<AttackSize>(GetRandomValue(0, 2));
+    auto size = static_cast<AttackSize>(GetRandomValue(0, 2));
 
-    Vector2 direction = Vector2Normalize(player->velocity);
+    const auto [x, y] = Vector2Normalize(player->velocity);
 
     const float attackAreaWidth = movementBounds.right - movementBounds.left;
     const float attackAreaHeight = movementBounds.top;
 
-    Vector2 playerCenter = {player->position.x + player->texture.width / 2.f,
-                            player->position.y + player->texture.height / 2.f};
+    const Vector2 playerCenter = {player->position.x + player->texture.width / 2.f,
+                                  player->position.y + player->texture.height / 2.f};
 
-    Vector2 attackPos = {playerCenter.x + direction.x * attackAreaWidth / 2.f,
-                         playerCenter.y + direction.y * attackAreaHeight / 2.f};
+    Vector2 attackPos = {playerCenter.x + x * attackAreaWidth / 2.f,
+                         playerCenter.y + y * attackAreaHeight / 2.f};
 
     attackPos.x = std::clamp(attackPos.x, playerCenter.x - attackAreaWidth / 2.f,
                              playerCenter.x + attackAreaWidth / 2.f);
@@ -576,7 +571,7 @@ void Game::createAttack()
 
 void Game::spawnBomb()
 {
-    Vector2 bombPos = {
+    const Vector2 bombPos = {
         static_cast<float>(GetRandomValue(movementBounds.left, movementBounds.right)),
         static_cast<float>(GetRandomValue(movementBounds.top, movementBounds.bottom))};
 
@@ -596,7 +591,7 @@ void Game::shakeWindow(float duration, float intensity)
 
 void Game::drawTextCenter(const char *text, float x, float y, float fontSize, Color color)
 {
-    Vector2 textSize = MeasureTextEx(GetFontDefault(), text, fontSize, 1.f);
+    const Vector2 textSize = MeasureTextEx(GetFontDefault(), text, fontSize, 1.f);
     DrawText(text, x - textSize.x / 2, y - textSize.y / 2, fontSize, color);
 }
 
@@ -608,14 +603,14 @@ void Game::drawTextCombined(float x,
                             const char *text2,
                             Color color2)
 {
-    Vector2 text1Vector = MeasureTextEx(GetFontDefault(), text1, fontSize, 1.f);
-    Vector2 text2Vector = MeasureTextEx(GetFontDefault(), text2, fontSize, 1.f);
+    const Vector2 text1Vector = MeasureTextEx(GetFontDefault(), text1, fontSize, 1.f);
+    const Vector2 text2Vector = MeasureTextEx(GetFontDefault(), text2, fontSize, 1.f);
 
-    int spaceWidth = 15;
-    int totalWidth = text1Vector.x + spaceWidth + text2Vector.x;
+    constexpr int spaceWidth = 15;
+    const int totalWidth = text1Vector.x + spaceWidth + text2Vector.x;
 
-    float startX = x - totalWidth / 2.f;
-    int startY = y - text1Vector.y / 2;
+    const float startX = x - totalWidth / 2.f;
+    const int startY = y - text1Vector.y / 2;
 
     DrawText(text1, startX, startY, fontSize, color1);
     DrawText(text2, startX + text1Vector.x + spaceWidth, startY, fontSize, color2);
@@ -624,7 +619,7 @@ void Game::drawTextCombined(float x,
 void Game::marqueeText(const char *text, float y, float fontSize, Color color, float speed)
 {
     static float x = 0;
-    int textWidth = MeasureText(text, fontSize);
+    const int textWidth = MeasureText(text, fontSize);
 
     x -= speed * GetFrameTime();
 
@@ -635,12 +630,12 @@ void Game::marqueeText(const char *text, float y, float fontSize, Color color, f
     DrawText(text, x + textWidth, y, fontSize, color);
 }
 
-const char *Game::formatTime()
+const char *Game::formatTime() const
 {
-    float timeElapsed = (timeEnd > 0 ? timeEnd : GetTime()) - timeStart;
-    int minutes = static_cast<int>(timeElapsed / 60);
-    int seconds = static_cast<int>(timeElapsed) % 60;
-    int milliseconds = static_cast<int>(timeElapsed * 1000) % 1000 / 10;
+    const float timeElapsed = (timeEnd > 0 ? timeEnd : GetTime()) - timeStart;
+    const int minutes = static_cast<int>(timeElapsed / 60);
+    const int seconds = static_cast<int>(timeElapsed) % 60;
+    const int milliseconds = static_cast<int>(timeElapsed * 1000) % 1000 / 10;
     return TextFormat("%02d:%02d.%02d", minutes, seconds, milliseconds);
 }
 

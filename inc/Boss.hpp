@@ -7,9 +7,9 @@
 class Boss
 {
 public:
-    Boss(Texture2D texture, Texture2D lareiTexture);
+    Boss(const Texture2D &texture, const Texture2D &lareiTexture);
 
-    float health;
+    float health{};
 
     void draw() const;
     void update(float deltaTime);

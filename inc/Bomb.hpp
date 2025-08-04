@@ -9,13 +9,13 @@
 class Bomb
 {
 public:
-    Bomb(Texture2D texture, Vector2 position);
+    Bomb(const Texture2D &texture, Vector2 position);
 
     Vector2 position;
 
     void draw() const;
-    void update(Player &player, Boss &boss, float deltaTime);
-    bool isAlive() const;
+    void update(const Player &player, Boss &boss, float deltaTime);
+    [[nodiscard]] bool isAlive() const;
     void explode(Boss &boss);
 
 private:

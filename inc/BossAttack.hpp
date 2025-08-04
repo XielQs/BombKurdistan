@@ -6,7 +6,6 @@
 #include "Player.hpp"
 #include "raylib.h"
 #include <memory>
-#include <raymath.h>
 #include <vector>
 
 enum AttackSize { SMALL, MEDIUM, LARGE };
@@ -24,7 +23,7 @@ public:
 
     void draw() const;
     void update(Player &player);
-    bool isAlive() const;
+    [[nodiscard]] bool isAlive() const;
     void explode();
 };
 

@@ -3,7 +3,6 @@
 #define GAME_HPP
 
 #include "raylib.h"
-#include <math.h>
 #include <memory>
 #include <vector>
 #ifdef __linux__
@@ -28,7 +27,7 @@ public:
     void init();
     void reset();
     void update();
-    void draw();
+    void draw() const;
     void handleInput();
     void updateTimers();
     void updateFrame();
@@ -41,8 +40,8 @@ private:
     // we set it to PLAYING as Game::update() needs to be called at least once with MAIN_MENU state
     GameState lastGameState = PLAYING;
 #ifdef __linux__
-    DiscordRPC discord;
-    DiscordActivity discordActivity;
+    DiscordRPC discord{};
+    DiscordActivity discordActivity{};
 #endif
     bool isMuted;
     float bombTimer;
@@ -52,29 +51,29 @@ private:
     std::unique_ptr<Boss> boss;
     std::vector<std::unique_ptr<BossAttack>> bossAttacks;
     std::vector<std::unique_ptr<Bomb>> bombs;
-    Texture2D bossTexture;
-    Texture2D playerTexture;
-    Texture2D bombTexture;
-    Texture2D lareiTexture;
-    Music bgMusic;
+    Texture2D bossTexture{};
+    Texture2D playerTexture{};
+    Texture2D bombTexture{};
+    Texture2D lareiTexture{};
+    Music bgMusic{};
     bool isShaking;
-    float shakeEndTime;
-    float shakeIntensity;
-    Vector2 windowPos;
+    float shakeEndTime{};
+    float shakeIntensity{};
+    Vector2 windowPos{};
     bool isPaused;
 
     void createAttack();
     void spawnBomb();
-    void drawTextCenter(const char *text, float x, float y, float fontSize, Color color);
-    void drawTextCombined(float x,
-                          float y,
-                          float fontSize,
-                          const char *text1,
-                          Color color1,
-                          const char *text2,
-                          Color color2);
-    void marqueeText(const char *text, float y, float fontSize, Color color, float speed);
-    const char *formatTime();
+    static void drawTextCenter(const char *text, float x, float y, float fontSize, Color color);
+    static void drawTextCombined(float x,
+                                 float y,
+                                 float fontSize,
+                                 const char *text1,
+                                 Color color1,
+                                 const char *text2,
+                                 Color color2);
+    static void marqueeText(const char *text, float y, float fontSize, Color color, float speed);
+    [[nodiscard]] const char *formatTime() const;
 };
 
 #endif // GAME_HPP

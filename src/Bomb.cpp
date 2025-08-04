@@ -3,7 +3,7 @@
 #include "raylib.h"
 #include <cmath>
 
-Bomb::Bomb(Texture2D texture, Vector2 position)
+Bomb::Bomb(const Texture2D &texture, Vector2 position)
     : position(position), texture(texture), expireTime(GetTime() + BOMB_LIFETIME),
       currentScale(1.0f)
 {
@@ -17,8 +17,9 @@ void Bomb::draw() const
     const float scale = currentScale;
     const Vector2 origin = {BOMB_SIZE / 2.f * scale, BOMB_SIZE / 2.f * scale};
 
-    Rectangle src = {0, 0, static_cast<float>(texture.width), static_cast<float>(texture.height)};
-    Rectangle dest = {position.x, position.y, BOMB_SIZE * scale, BOMB_SIZE * scale};
+    const Rectangle src = {0, 0, static_cast<float>(texture.width),
+                           static_cast<float>(texture.height)};
+    const Rectangle dest = {position.x, position.y, BOMB_SIZE * scale, BOMB_SIZE * scale};
 
     DrawTexturePro(texture, src, dest, origin, 0.f, WHITE);
 #ifdef DEBUG_MODE
@@ -27,7 +28,7 @@ void Bomb::draw() const
 #endif
 }
 
-void Bomb::update(Player &player, Boss &boss, float deltaTime)
+void Bomb::update(const Player &player, Boss &boss, float deltaTime)
 {
     if (!isAlive())
         return;

@@ -7,23 +7,23 @@
 class Player
 {
 public:
-    Player(Texture2D texture);
+    explicit Player(const Texture2D &texture);
 
-    float health;
+    float health{};
     Texture2D texture;
-    Vector2 position;
-    Vector2 velocity;
+    Vector2 position{};
+    Vector2 velocity{};
 
-    void draw();
+    void draw() const;
     void update();
     void init();
     void takeDamage(float damage);
     void resetMouseTarget();
 
 private:
-    Vector2 previousPosition;
-    Vector2 mouseTarget;
-    bool isMouseTargetSet;
+    Vector2 previousPosition{};
+    Vector2 mouseTarget{};
+    bool isMouseTargetSet{};
 };
 
 #endif // PLAYER_HPP

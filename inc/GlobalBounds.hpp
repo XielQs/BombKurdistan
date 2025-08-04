@@ -12,6 +12,6 @@ struct MovementBounds
 
 extern MovementBounds movementBounds;
 
-void InitMovementBounds(float screenWidth, float screenHeight);
+void InitMovementBounds(int screenWidth, int screenHeight);
 
 #endif // GLOBALBOUNDS_HPP

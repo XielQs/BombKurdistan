@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cmath>
 
-Player::Player(Texture2D texture) : texture(texture)
+Player::Player(const Texture2D &texture) : texture(texture)
 {
     init();
 }
@@ -20,7 +20,7 @@ void Player::init()
     velocity = {0, 0};
 }
 
-void Player::draw()
+void Player::draw() const
 {
     const Rectangle src = {0.f, 0.f, static_cast<float>(texture.width),
                            static_cast<float>(texture.height)};
@@ -29,9 +29,9 @@ void Player::draw()
     DrawTexturePro(texture, src, dest, {PLAYER_SIZE / 2.f, PLAYER_SIZE / 2.f}, 0.f, WHITE);
 
     // draw health bar
-    float healthBar = health / PLAYER_HEALTH;
-    float barWidth = 130.f;
-    float barHeight = 15.f;
+    const float healthBar = health / PLAYER_HEALTH;
+    constexpr float barWidth = 130.f;
+    constexpr float barHeight = 15.f;
     DrawRectangle(SCREEN_DRAW_X - barWidth / 2, GetScreenHeight() - barHeight - 10.f, barWidth,
                   barHeight, GRAY);
     DrawRectangle(SCREEN_DRAW_X - barWidth / 2, GetScreenHeight() - barHeight - 10.f,
