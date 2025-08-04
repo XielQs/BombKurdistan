@@ -1,29 +1,26 @@
-NAME		  = bombkurdistan
-NAME_WIN	= bombkurdistan.exe
-NAME_WEB  = bombkurdistan.html
+NAME      = bombkurdistan
+NAME_WIN  = bombkurdistan.exe
 
 ZIP_NAME     = bombkurdistan_linux.zip
 ZIP_NAME_WIN = bombkurdistan_windows.zip
 
-INC_DIR		= inc
-LIB_DIR		= lib
-SRC_DIR		= src
-BUILD_DIR	= build
+INC_DIR     = inc
+LIB_DIR     = lib
+SRC_DIR     = src
+BUILD_DIR   = build
 
-RAYLIB_SRC	= $(LIB_DIR)/raylib/src
-RAYLIB		  = $(RAYLIB_SRC)/libraylib.a
+RAYLIB_SRC  = $(LIB_DIR)/raylib/src
+RAYLIB      = $(RAYLIB_SRC)/libraylib.a
 RAYLIB_WIN  = $(RAYLIB_SRC)/libraylib.win.a
-RAYLIB_WEB  = $(RAYLIB_SRC)/libraylib.web.a
 
 DISCORDRPC_SRC = $(LIB_DIR)/discordrpc
-DISCORDRPC	   = $(DISCORDRPC_SRC)/libdiscordrpc.a
+DISCORDRPC     = $(DISCORDRPC_SRC)/libdiscordrpc.a
 
-EMSCRIPTEN	= emcc
-CXX					= clang++
-CXXFLAGS 		= -Wall -Wextra -g3 -ggdb3 -std=c++23 -MMD -MP \
-			-I$(INC_DIR) -I$(RAYLIB_SRC) -Wno-missing-field-initializers
-LDFLAGS		= -L$(RAYLIB_SRC)
-RM			  = rm -rf
+CXX        = clang++
+CXXFLAGS   = -Wall -Wextra -g3 -ggdb3 -std=c++23 -MMD -MP \
+             -I$(INC_DIR) -I$(RAYLIB_SRC) -Wno-missing-field-initializers
+LDFLAGS    = -L$(RAYLIB_SRC)
+RM         = rm -rf
 
 ifdef DEBUG
 	CXXFLAGS += -DDEBUG_MODE
@@ -36,11 +33,6 @@ ifeq ($(MAKECMDGOALS), windows)
 	CXXFLAGS += -O3
 	LDFLAGS += -lraylib.win -static -lgdi32 -lwinmm
 	BUILD_SUBDIR = $(BUILD_DIR)/win
-else ifeq ($(MAKECMDGOALS), web)
-	CXX         = $(EMSCRIPTEN)
-	LDFLAGS    += -lraylib.web --shell-file assets/shell.html
-	BUILD_SUBDIR = $(BUILD_DIR)/web
-	CXXFLAGS   += -Os --preload-file assets -s USE_GLFW=3 -s EXPORTED_RUNTIME_METHODS=ccall -DPLATFORM_WEB
 else
 # include discordrpc if it's on linux
 	LDFLAGS += -lraylib -L$(DISCORDRPC_SRC)/build -ldiscordrpc
@@ -52,15 +44,11 @@ SRCS		= $(wildcard $(SRC_DIR)/*.cpp)
 OBJS		= $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_SUBDIR)/%.o, $(SRCS))
 DEPS		= $(OBJS:.o=.d)
 
-all: $(NAME)
+linux: $(NAME)
 windows: $(NAME_WIN)
-web: $(NAME_WEB)
 
 $(RAYLIB):
 	@$(MAKE) -C $(RAYLIB_SRC) PLATFORM=PLATFORM_DESKTOP
-
-$(RAYLIB_WEB):
-	@$(MAKE) -C $(RAYLIB_SRC) PLATFORM=PLATFORM_WEB -B
 
 $(DISCORDRPC):
 	@echo "Building discordrpc..."
@@ -77,9 +65,6 @@ $(NAME): $(OBJS) $(RAYLIB) $(DISCORDRPC)
 
 $(NAME_WIN): $(OBJS) $(RAYLIB_WIN)
 	@$(CXX) $(CXXFLAGS) $(OBJS) $(LDFLAGS) -o $@
-
-$(NAME_WEB): $(OBJS) $(RAYLIB_WEB)
-	@$(CXX) $(CXXFLAGS) $(OBJS) $(LDFLAGS) -o $(BUILD_SUBDIR)/$@
 
 $(RAYLIB_WIN):
 	@echo "Downloading raylib..."
@@ -114,10 +99,10 @@ clean:
 fclean: clean
 	@$(MAKE) -C $(RAYLIB_SRC) clean
 	@$(MAKE) -C $(DISCORDRPC_SRC) clean
-	@$(RM) $(NAME) $(NAME_WIN) $(NAME_WEB) $(RAYLIB) $(RAYLIB_WIN) $(ZIP_NAME) $(ZIP_NAME_WIN)
+	@$(RM) $(NAME) $(NAME_WIN) $(RAYLIB) $(RAYLIB_WIN) $(ZIP_NAME) $(ZIP_NAME_WIN)
 
-re: fclean all
+re: fclean linux
 
 -include $(DEPS)
 
-.PHONY: all clean fclean re windows zip
+.PHONY: linx clean fclean re windows zip
