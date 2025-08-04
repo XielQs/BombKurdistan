@@ -53,9 +53,6 @@ jobs:
       - name: Build Windows version
         run: ./build.sh -w
 
-      - name: Build Windows version
-        run: make windows -j
-
       - name: Zip build
         run: ./build.sh -z
 
