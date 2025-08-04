@@ -65,10 +65,9 @@ void Game::init()
     bgMusic = LoadMusicStream("assets/bg_music.mp3");
 
     if (bossTexture.id <= 0 || playerTexture.id <= 0 || bombTexture.id <= 0 ||
-        lareiTexture.id <= 0) {
+        lareiTexture.id <= 0 || bgMusic.ctxType == 0) {
         TraceLog(LOG_ERROR, "Failed to load textures");
         setGameState(GAME_ERROR_TEXTURE);
-        return;
     }
 
     windowPos = GetWindowPosition();
@@ -286,7 +285,7 @@ void Game::draw() const
             drawTextCenter("Bu bir oyun projesidir tamamiyla eglence amaciyla uretilmistir",
                            SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -3, 20, GRAY);
             // select difficulty
-            drawTextCenter("Zorluk Seçin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -1, 20,
+            drawTextCenter("Zorluk Secin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -1, 20,
                            WHITE);
             drawTextCenter("1. Kurt vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20,
                            GREEN);
