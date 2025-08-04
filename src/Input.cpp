@@ -50,7 +50,7 @@ bool Input::isEscapeKey()
 
 bool Input::isPauseKey()
 {
-    // gamepad Triangle button
+    // gamepad L1 button
     return IsKeyPressed(KEY_P) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
 }
 
@@ -68,7 +68,7 @@ bool Input::isCreditsKey()
 
 bool Input::isEnterOrSpace()
 {
-    // gamepad Circle button
+    // gamepad X button
     return IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE) ||
            IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
 }

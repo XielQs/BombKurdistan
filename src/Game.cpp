@@ -24,12 +24,10 @@ void Game::init()
     SetExitKey(KEY_NULL); // disable ESC key
     InitAudioDevice();
     InitMovementBounds(GetScreenWidth(), GetScreenHeight());
-#ifndef PLATFORM_WEB
     SetWindowState(FLAG_VSYNC_HINT);
     SetWindowIcon(LoadImage("assets/icon.png"));
-#endif
 
-#ifdef __linux__
+#ifdef DISCORD_RPC_ENABLED
     DiscordEventHandlers discordHandlers = {};
 
     discordHandlers.disconnected = [](const bool wasError) {
@@ -115,7 +113,7 @@ void Game::update()
         Input::unlockMouse();
         if (lastGameState != PLAYING) {
             TraceLog(LOG_INFO, "Game started");
-#ifdef __linux__
+#ifdef DISCORD_RPC_ENABLED
             discordActivity.state = getDifficultyName(currentDifficulty);
             discordActivity.details = "Kurdistani Bombaliyor";
             discordActivity.startTimestamp = timeStart / 1000;
@@ -187,7 +185,7 @@ void Game::update()
     }
     if (gameState == MAIN_MENU && lastGameState != MAIN_MENU) {
         TraceLog(LOG_INFO, "Main menu");
-#ifdef __linux__
+#ifdef DISCORD_RPC_ENABLED
         discordActivity.state = "Ana menude";
         discordActivity.details = nullptr;
         discordActivity.startTimestamp = GetTime() / 1000;
@@ -197,7 +195,7 @@ void Game::update()
     }
     if (gameState == WIN && lastGameState != WIN) {
         TraceLog(LOG_INFO, "Game won");
-#ifdef __linux__
+#ifdef DISCORD_RPC_ENABLED
         discordActivity.state = getDifficultyName(currentDifficulty);
         discordActivity.details = "Ankara kurtarildi!";
         discordActivity.startTimestamp = GetTime() / 1000;
@@ -207,7 +205,7 @@ void Game::update()
     }
     if (gameState == GAME_OVER && lastGameState != GAME_OVER) {
         TraceLog(LOG_INFO, "Game over");
-#ifdef __linux__
+#ifdef DISCORD_RPC_ENABLED
         discordActivity.state = getDifficultyName(currentDifficulty);
         discordActivity.details = "Ankara dustu!";
         discordActivity.startTimestamp = GetTime() / 1000;
@@ -280,39 +278,39 @@ void Game::draw() const
                                                              : DARKRED);
             break;
         case MAIN_MENU:
-            drawTextCenter("Kurdistan Bombalayici", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -4,
+            drawTextCenter("Kurdistan Bombalayici", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -5,
                            20, WHITE);
             drawTextCenter("Bu bir oyun projesidir tamamiyla eglence amaciyla uretilmistir",
-                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -3, 20, GRAY);
+                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -4, 20, GRAY);
             // select difficulty
-            drawTextCenter("Zorluk Secin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -1, 20,
+            drawTextCenter("Zorluk Secin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
                            WHITE);
-            drawTextCenter("1. Kurt vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20,
+            drawTextCenter("1. Kurt vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 0, 20,
                            GREEN);
-            drawTextCenter("2. Turk vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20,
+            drawTextCenter("2. Turk vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20,
                            YELLOW);
-            drawTextCenter("3. ULKUCU VATANDAS", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20,
+            drawTextCenter("3. ULKUCU VATANDAS", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20,
                            DARKRED);
 
             // draw a (-) to indicate the current difficulty
             if (currentDifficulty == EASY) {
-                drawTextCenter("-", SCREEN_DRAW_X - 95, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20, GREEN);
+                drawTextCenter("-", SCREEN_DRAW_X - 95, SCREEN_DRAW_Y + TEXT_HEIGHT * 0, 20, GREEN);
             } else if (currentDifficulty == NORMAL) {
-                drawTextCenter("-", SCREEN_DRAW_X - 100, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20,
+                drawTextCenter("-", SCREEN_DRAW_X - 100, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20,
                                YELLOW);
             } else if (currentDifficulty == HARD) {
-                drawTextCenter("-", SCREEN_DRAW_X - 125, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20,
+                drawTextCenter("-", SCREEN_DRAW_X - 125, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20,
                                DARKRED);
             }
 
-            drawTextCenter("Cikmak icin ESC'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 5,
+            drawTextCenter("Cikmak icin ESC'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 4,
                            20, WHITE);
             drawTextCenter("Secim yapmak icin ok tuslarini ya da 1, 2 veya 3'u kullanabilirsin",
-                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 6, 20, GRAY);
+                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20, GRAY);
             drawTextCenter("Oyuna baslamak icin SPACE veya ENTER'a bas", SCREEN_DRAW_X,
-                           SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, GRAY);
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 6, 20, GRAY);
             drawTextCenter("Yapimcilar ve ozel tesekkurler icin C'ye bas", SCREEN_DRAW_X,
-                           SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20, GRAY);
+                           SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, GRAY);
 
             drawTextCenter("M ile sesi ac/kapat", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 10,
                            20, isMuted ? GRAY : WHITE);
@@ -424,7 +422,6 @@ void Game::handleInput()
                 currentDifficulty = HARD;
             if (Input::isEscapeKey()) {
                 cleanup();
-                return;
             }
             if (Input::isEnterOrSpace()) {
                 reset();
@@ -471,13 +468,11 @@ void Game::handleInput()
             }
             if (Input::isEscapeKey()) {
                 cleanup();
-                return;
             }
             break;
         case GAME_ERROR_TEXTURE:
             if (Input::isEscapeKey()) {
                 cleanup();
-                return;
             }
             break;
         default:
@@ -507,7 +502,7 @@ void Game::cleanup()
     UnloadTexture(lareiTexture);
     UnloadMusicStream(bgMusic);
     CloseAudioDevice();
-#ifdef __linux__
+#ifdef DISCORD_RPC_ENABLED
     if (discord.connected)
         DiscordRPC_shutdown(&discord);
 #endif

@@ -5,7 +5,7 @@
 #include "raylib.h"
 #include <memory>
 #include <vector>
-#ifdef __linux__
+#ifdef DISCORD_RPC_ENABLED
 #include <discordrpc.h>
 #endif
 #include "Bomb.hpp"
@@ -39,7 +39,7 @@ private:
     GameState gameState;
     // we set it to PLAYING as Game::update() needs to be called at least once with MAIN_MENU state
     GameState lastGameState = PLAYING;
-#ifdef __linux__
+#ifdef DISCORD_RPC_ENABLED
     DiscordRPC discord{};
     DiscordActivity discordActivity{};
 #endif

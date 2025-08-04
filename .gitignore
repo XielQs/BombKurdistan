@@ -1,5 +1,5 @@
 .vscode
-build
+build*
 dist
 compile_commands.json
 bombkurdistan*
