@@ -1,4 +1,5 @@
 #include "Input.hpp"
+
 #include "raylib.h"
 
 bool Input::isMouseLocked = false;
@@ -66,6 +67,12 @@ bool Input::isCreditsKey()
     return IsKeyPressed(KEY_C) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_UP);
 }
 
+bool Input::isSettingsKey()
+{
+    // gamepad L1 button
+    return IsKeyPressed(KEY_A) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
+}
+
 bool Input::isEnterOrSpace()
 {
     // gamepad X button
@@ -86,6 +93,16 @@ bool Input::isArrowUp()
 bool Input::isArrowDown()
 {
     return IsKeyPressed(KEY_DOWN) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN);
+}
+
+bool Input::isArrowLeft()
+{
+    return IsKeyPressed(KEY_LEFT) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_LEFT);
+}
+
+bool Input::isArrowRight()
+{
+    return IsKeyPressed(KEY_RIGHT) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_RIGHT);
 }
 
 void Input::lockMouse()

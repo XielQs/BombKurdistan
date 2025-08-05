@@ -1,6 +1,8 @@
 #include "Bomb.hpp"
+
 #include "Constants.hpp"
 #include "raylib.h"
+
 #include <cmath>
 
 Bomb::Bomb(const Texture2D &texture, Vector2 position)

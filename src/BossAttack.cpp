@@ -1,6 +1,8 @@
 #include "BossAttack.hpp"
+
 #include "Constants.hpp"
 #include "Difficulty.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <memory>
@@ -8,11 +10,11 @@
 float getAttackSizeRadius(AttackSize size)
 {
     switch (size) {
-        case SMALL:
+        case AttackSize::SMALL:
             return 25.f;
-        case MEDIUM:
+        case AttackSize::MEDIUM:
             return 30.f;
-        case LARGE:
+        case AttackSize::LARGE:
             return 50.f;
         default:
             return 0.f;
@@ -22,20 +24,24 @@ float getAttackSizeRadius(AttackSize size)
 BossAttack::BossAttack(Vector2 position, AttackSize size)
     : position(position), size(size), explodeTime(0.f), exploded(false)
 {
-    const float factor = (currentDifficulty == EASY)     ? BossAttackConfig::EASY_FACTOR
-                         : (currentDifficulty == NORMAL) ? BossAttackConfig::NORMAL_FACTOR
-                                                         : BossAttackConfig::HARD_FACTOR;
+    const float factor = (currentDifficulty == Difficulty::EASY) ? BossAttackConfig::EASY_FACTOR
+                         : (currentDifficulty == Difficulty::NORMAL)
+                             ? BossAttackConfig::NORMAL_FACTOR
+                             : BossAttackConfig::HARD_FACTOR;
     explodeTime =
-        GetTime() + (size == SMALL ? BossAttackConfig::SMALL_EXPLODE_TIME
-                                   : (size == MEDIUM ? BossAttackConfig::MEDIUM_EXPLODE_TIME
-                                                     : BossAttackConfig::LARGE_EXPLODE_TIME)) *
+        GetTime() + (size == AttackSize::SMALL
+                         ? BossAttackConfig::SMALL_EXPLODE_TIME
+                         : (size == AttackSize::MEDIUM ? BossAttackConfig::MEDIUM_EXPLODE_TIME
+                                                       : BossAttackConfig::LARGE_EXPLODE_TIME)) *
                         factor;
 }
 
 void BossAttack::draw() const
 {
     if (!exploded) {
-        const Color color = (size == SMALL) ? RED : (size == MEDIUM) ? YELLOW : BLUE;
+        const Color color = (size == AttackSize::SMALL)    ? RED
+                            : (size == AttackSize::MEDIUM) ? YELLOW
+                                                           : BLUE;
         const float radius = getAttackSizeRadius(size);
         DrawCircleLines(position.x, position.y, radius, color);
     }
@@ -78,16 +84,18 @@ void BossAttack::update(Player &player)
 void BossAttack::explode()
 {
     exploded = true;
-    const int bulletCount = (size == SMALL)    ? BossAttackConfig::SMALL_BULLET_COUNT
-                            : (size == MEDIUM) ? BossAttackConfig::MEDIUM_BULLET_COUNT
-                                               : BossAttackConfig::LARGE_BULLET_COUNT;
-    const float factor = (currentDifficulty == EASY)     ? BossAttackConfig::EASY_FACTOR
-                         : (currentDifficulty == NORMAL) ? BossAttackConfig::NORMAL_FACTOR
-                                                         : BossAttackConfig::HARD_FACTOR;
-    const float bulletSpeed = ((size == SMALL)    ? BossAttackConfig::SMALL_BULLET_SPEED
-                               : (size == MEDIUM) ? BossAttackConfig::MEDIUM_BULLET_SPEED
-                                                  : BossAttackConfig::LARGE_BULLET_SPEED) *
-                              factor;
+    const int bulletCount = (size == AttackSize::SMALL)    ? BossAttackConfig::SMALL_BULLET_COUNT
+                            : (size == AttackSize::MEDIUM) ? BossAttackConfig::MEDIUM_BULLET_COUNT
+                                                           : BossAttackConfig::LARGE_BULLET_COUNT;
+    const float factor = (currentDifficulty == Difficulty::EASY) ? BossAttackConfig::EASY_FACTOR
+                         : (currentDifficulty == Difficulty::NORMAL)
+                             ? BossAttackConfig::NORMAL_FACTOR
+                             : BossAttackConfig::HARD_FACTOR;
+    const float bulletSpeed =
+        ((size == AttackSize::SMALL)    ? BossAttackConfig::SMALL_BULLET_SPEED
+         : (size == AttackSize::MEDIUM) ? BossAttackConfig::MEDIUM_BULLET_SPEED
+                                        : BossAttackConfig::LARGE_BULLET_SPEED) *
+        factor;
     const float angleStep = 360.0f / bulletCount;
 
     for (int i = 0; i < bulletCount; i++) {

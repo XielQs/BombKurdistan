@@ -6,14 +6,23 @@
 #include "Boss.hpp"
 #include "BossAttack.hpp"
 #include "Player.hpp"
+#include "Settings.hpp"
 #include "raylib.h"
 #include <memory>
 #include <vector>
 #ifdef DISCORD_RPC_ENABLED
-#include <discordrpc.h>
+#include "discordrpc.h"
 #endif
 
-enum GameState { PLAYING, GAME_OVER, MAIN_MENU, MENU_CREDITS, GAME_ERROR_TEXTURE, WIN };
+enum class GameState {
+    PLAYING,
+    GAME_OVER,
+    MAIN_MENU,
+    MENU_CREDITS,
+    MENU_SETTINGS,
+    GAME_ERROR_TEXTURE,
+    WIN
+};
 
 class Game
 {
@@ -34,16 +43,27 @@ public:
     void cleanup();
     void setGameState(GameState newState);
     void shakeWindow(float duration, float intensity);
+    static int drawTextCenter(const char *text, float x, float y, float fontSize, Color color);
+    static int drawTextCombined(float x,
+                                float y,
+                                float fontSize,
+                                const char *text1,
+                                Color color1,
+                                const char *text2,
+                                Color color2);
+    static void marqueeText(const char *text, float y, float fontSize, Color color, float speed);
+    void disconnectDiscord();
+    void connectDiscord();
 
 private:
+    Settings settings;
     GameState gameState;
     // we set it to PLAYING as Game::update() needs to be called at least once with MAIN_MENU state
-    GameState lastGameState = PLAYING;
+    GameState lastGameState = GameState::PLAYING;
 #ifdef DISCORD_RPC_ENABLED
     DiscordRPC discord{};
     DiscordActivity discordActivity{};
 #endif
-    bool isMuted;
     float bombTimer;
     float attackTimer;
     float timeStart;
@@ -64,15 +84,6 @@ private:
 
     void createAttack();
     void spawnBomb();
-    static void drawTextCenter(const char *text, float x, float y, float fontSize, Color color);
-    static void drawTextCombined(float x,
-                                 float y,
-                                 float fontSize,
-                                 const char *text1,
-                                 Color color1,
-                                 const char *text2,
-                                 Color color2);
-    static void marqueeText(const char *text, float y, float fontSize, Color color, float speed);
     [[nodiscard]] const char *formatTime() const;
     void setDiscordActivity(const char *state, const char *details, float startTimestamp);
 };

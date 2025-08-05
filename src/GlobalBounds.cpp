@@ -1,4 +1,5 @@
 #include "GlobalBounds.hpp"
+
 #include "Constants.hpp"
 
 MovementBounds movementBounds;

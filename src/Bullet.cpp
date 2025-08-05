@@ -1,11 +1,12 @@
 #include "Bullet.hpp"
+
 #include "Constants.hpp"
 #include "raymath.h"
 
 Bullet::Bullet(Vector2 position, Vector2 direction, float speed)
     : active(true), position(position), direction(Vector2Normalize(direction))
 {
-    velocity = Vector2Scale(direction, speed * GAME_FPS); // direction * speed
+    velocity = Vector2Scale(direction, speed * DEFAULT_GAME_FPS); // direction * speed
 }
 
 void Bullet::update(float deltaTime)

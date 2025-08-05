@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-enum AttackSize { SMALL, MEDIUM, LARGE };
+enum class AttackSize { SMALL, MEDIUM, LARGE };
 
 class BossAttack
 {

@@ -1,15 +1,15 @@
 #include "Difficulty.hpp"
 
-Difficulty currentDifficulty = NORMAL;
+auto currentDifficulty = Difficulty::NORMAL;
 
 const char *getDifficultyName(const Difficulty difficulty)
 {
     switch (difficulty) {
-        case EASY:
+        case Difficulty::EASY:
             return "Kurt vatandas";
-        case NORMAL:
+        case Difficulty::NORMAL:
             return "Turk vatandas";
-        case HARD:
+        case Difficulty::HARD:
             return "ULKUCU VATANDAS";
         default:
             return "Bilinmeyen";

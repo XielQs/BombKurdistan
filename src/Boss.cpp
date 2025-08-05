@@ -1,8 +1,10 @@
 #include "Boss.hpp"
+
 #include "Constants.hpp"
 #include "Difficulty.hpp"
 #include "Game.hpp"
 #include "raylib.h"
+
 #include <cmath>
 
 extern Game game;
@@ -52,7 +54,7 @@ void Boss::update(float deltaTime)
 
     // if health is less than 30% and difficulty is HARD
     // regenerate health
-    if (health < BOSS_HEALTH * 0.3f && currentDifficulty == HARD)
+    if (health < BOSS_HEALTH * 0.3f && currentDifficulty == Difficulty::HARD)
         health += deltaTime * 0.5f;
 }
 

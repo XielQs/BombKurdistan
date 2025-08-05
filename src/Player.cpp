@@ -1,9 +1,11 @@
 #include "Player.hpp"
+
 #include "Constants.hpp"
 #include "GlobalBounds.hpp"
 #include "Input.hpp"
 #include "raylib.h"
 #include "raymath.h"
+
 #include <algorithm>
 #include <cmath>
 
