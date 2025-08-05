@@ -2,16 +2,16 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
+#include "Bomb.hpp"
+#include "Boss.hpp"
+#include "BossAttack.hpp"
+#include "Player.hpp"
 #include "raylib.h"
 #include <memory>
 #include <vector>
 #ifdef DISCORD_RPC_ENABLED
 #include <discordrpc.h>
 #endif
-#include "Bomb.hpp"
-#include "Boss.hpp"
-#include "BossAttack.hpp"
-#include "Player.hpp"
 
 enum GameState { PLAYING, GAME_OVER, MAIN_MENU, MENU_CREDITS, GAME_ERROR_TEXTURE, WIN };
 
@@ -74,6 +74,7 @@ private:
                                  Color color2);
     static void marqueeText(const char *text, float y, float fontSize, Color color, float speed);
     [[nodiscard]] const char *formatTime() const;
+    void setDiscordActivity(const char *state, const char *details, float startTimestamp);
 };
 
 #endif // GAME_HPP

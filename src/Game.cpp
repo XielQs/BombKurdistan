@@ -113,13 +113,8 @@ void Game::update()
         Input::unlockMouse();
         if (lastGameState != PLAYING) {
             TraceLog(LOG_INFO, "Game started");
-#ifdef DISCORD_RPC_ENABLED
-            discordActivity.state = getDifficultyName(currentDifficulty);
-            discordActivity.details = "Kurdistani Bombaliyor";
-            discordActivity.startTimestamp = timeStart / 1000;
-            if (discord.connected)
-                DiscordRPC_setActivity(&discord, &discordActivity);
-#endif
+            setDiscordActivity(getDifficultyName(currentDifficulty), "Kurdistani Bombaliyor",
+                               timeStart / 1000);
         }
 
         updateTimers();
@@ -185,33 +180,16 @@ void Game::update()
     }
     if (gameState == MAIN_MENU && lastGameState != MAIN_MENU) {
         TraceLog(LOG_INFO, "Main menu");
-#ifdef DISCORD_RPC_ENABLED
-        discordActivity.state = "Ana menude";
-        discordActivity.details = nullptr;
-        discordActivity.startTimestamp = GetTime() / 1000;
-        if (discord.connected)
-            DiscordRPC_setActivity(&discord, &discordActivity);
-#endif
+        setDiscordActivity("Ana menude", nullptr, GetTime() / 1000);
     }
     if (gameState == WIN && lastGameState != WIN) {
         TraceLog(LOG_INFO, "Game won");
-#ifdef DISCORD_RPC_ENABLED
-        discordActivity.state = getDifficultyName(currentDifficulty);
-        discordActivity.details = "Ankara kurtarildi!";
-        discordActivity.startTimestamp = GetTime() / 1000;
-        if (discord.connected)
-            DiscordRPC_setActivity(&discord, &discordActivity);
-#endif
+        setDiscordActivity(getDifficultyName(currentDifficulty), "Ankara kurtarildi!",
+                           GetTime() / 1000);
     }
     if (gameState == GAME_OVER && lastGameState != GAME_OVER) {
         TraceLog(LOG_INFO, "Game over");
-#ifdef DISCORD_RPC_ENABLED
-        discordActivity.state = getDifficultyName(currentDifficulty);
-        discordActivity.details = "Ankara dustu!";
-        discordActivity.startTimestamp = GetTime() / 1000;
-        if (discord.connected)
-            DiscordRPC_setActivity(&discord, &discordActivity);
-#endif
+        setDiscordActivity(getDifficultyName(currentDifficulty), "Ankara dustu!", GetTime() / 1000);
     }
     lastGameState = gameState;
 }
@@ -220,6 +198,13 @@ void Game::draw() const
 {
     BeginDrawing();
     ClearBackground(Color{10, 10, 10, 255});
+
+    const char *infoSection[] = {
+        "Cikmak icin ESC'ye bas",
+        "Secim yapmak icin ok tuslarini ya da 1, 2 veya 3'u kullanabilirsin",
+        "Oyuna baslamak icin SPACE veya ENTER'a bas",
+        "Yapimcilar ve ozel tesekkurler icin C'ye bas",
+    };
 
     switch (gameState) {
         case PLAYING:
@@ -303,14 +288,10 @@ void Game::draw() const
                                DARKRED);
             }
 
-            drawTextCenter("Cikmak icin ESC'ye bas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 4,
-                           20, WHITE);
-            drawTextCenter("Secim yapmak icin ok tuslarini ya da 1, 2 veya 3'u kullanabilirsin",
-                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20, GRAY);
-            drawTextCenter("Oyuna baslamak icin SPACE veya ENTER'a bas", SCREEN_DRAW_X,
-                           SCREEN_DRAW_Y + TEXT_HEIGHT * 6, 20, GRAY);
-            drawTextCenter("Yapimcilar ve ozel tesekkurler icin C'ye bas", SCREEN_DRAW_X,
-                           SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, GRAY);
+            for (size_t i = 0; i < std::size(infoSection); ++i) {
+                drawTextCenter(infoSection[i], SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * (i + 4),
+                               20, GRAY);
+            }
 
             drawTextCenter("M ile sesi ac/kapat", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 10,
                            20, isMuted ? GRAY : WHITE);
@@ -510,6 +491,22 @@ void Game::cleanup()
     shouldClose = true;
 }
 
+void Game::setGameState(GameState newState)
+{
+    gameState = newState;
+    if (gameState != PLAYING) {
+        if (isShaking) {
+            isShaking = false;
+            SetWindowPosition(windowPos.x, windowPos.y);
+        }
+        isPaused = false;
+    }
+    if (gameState == GAME_OVER || gameState == WIN) {
+        // stop the game timer
+        timeEnd = GetTime();
+    }
+}
+
 void Game::updateTimers()
 {
     bombTimer += GetFrameTime();
@@ -633,18 +630,14 @@ const char *Game::formatTime() const
     return TextFormat("%02d:%02d.%02d", minutes, seconds, milliseconds);
 }
 
-void Game::setGameState(GameState newState)
+void Game::setDiscordActivity(const char *state, const char *details, const float startTimestamp)
 {
-    gameState = newState;
-    if (gameState != PLAYING) {
-        if (isShaking) {
-            isShaking = false;
-            SetWindowPosition(windowPos.x, windowPos.y);
-        }
-        isPaused = false;
+#ifdef DISCORD_RPC_ENABLED
+    if (discord.connected) {
+        discordActivity.state = state;
+        discordActivity.details = details;
+        discordActivity.startTimestamp = static_cast<int64_t>(startTimestamp);
+        DiscordRPC_setActivity(&discord, &discordActivity);
     }
-    if (gameState == GAME_OVER || gameState == WIN) {
-        // stop the game timer
-        timeEnd = GetTime();
-    }
+#endif
 }

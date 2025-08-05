@@ -90,7 +90,6 @@ jobs:
             ### Changes
             - Automated release from commit ${{ github.sha }}
             - Built on ${{ github.run_id }}
-            - Build date: ${{ github.run_date }}
 
             ### Downloads
             - **Linux**: bombkurdistan_linux.zip

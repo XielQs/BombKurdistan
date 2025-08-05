@@ -24,6 +24,7 @@ zipten cikartin. Ardindan `./bombkurdistan` veya `./bombkurdistan.exe` dosyasini
 
 ```bash
 git clone https://github.com/XielQs/BombKurdistan --recurse-submodules
+cd BombKurdistan
 ```
 
 ```bash
