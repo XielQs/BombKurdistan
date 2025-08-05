@@ -39,9 +39,9 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y \
-            make cmake ninja-build clang \
-            xorg-dev libx11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libgl1-mesa-dev \
-            libjansson-dev zip unzip wget \
+            make cmake \
+            libx11-dev libxcursor-dev libxrandr-dev libxi-dev libgl1-mesa-dev \
+            zip unzip \
             mingw-w64 mingw-w64-tools
 
       - name: Make build script executable
