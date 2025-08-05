@@ -1,6 +1,8 @@
 #include "Difficulty.hpp"
 
-auto currentDifficulty = Difficulty::NORMAL;
+// we can't use auto in here because C++ is a stupid fucking moron,
+// and you can't use auto with extern
+Difficulty currentDifficulty = Difficulty::NORMAL;
 
 const char *getDifficultyName(const Difficulty difficulty)
 {
