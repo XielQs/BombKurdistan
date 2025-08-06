@@ -11,13 +11,10 @@ public:
     static bool isPlayerDown();
     static bool isPlayerLeft();
     static bool isPlayerRight();
-    static bool isMusicMuted();
     static bool isLeftButton();
     static bool isEscapeKey();
     static bool isPauseKey();
     static bool isResetKey();
-    static bool isCreditsKey();
-    static bool isSettingsKey();
     static bool isEnterOrSpace();
     static bool isKeyPressed(KeyboardKey key);
     static bool isArrowUp();

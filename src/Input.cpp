@@ -29,12 +29,6 @@ bool Input::isPlayerRight()
            IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_RIGHT);
 }
 
-bool Input::isMusicMuted()
-{
-    // gamepad Square button
-    return IsKeyPressed(KEY_M) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_LEFT);
-}
-
 bool Input::isLeftButton()
 {
     if (isMouseLocked) {
@@ -59,18 +53,6 @@ bool Input::isResetKey()
 {
     // gamepad X button
     return IsKeyPressed(KEY_R) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
-}
-
-bool Input::isCreditsKey()
-{
-    // gamepad Triangle button
-    return IsKeyPressed(KEY_C) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_UP);
-}
-
-bool Input::isSettingsKey()
-{
-    // gamepad L1 button
-    return IsKeyPressed(KEY_A) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_TRIGGER_1);
 }
 
 bool Input::isEnterOrSpace()

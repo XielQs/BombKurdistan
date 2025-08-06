@@ -14,14 +14,15 @@
 #include "discordrpc.h"
 #endif
 
-enum class GameState {
-    PLAYING,
-    GAME_OVER,
-    MAIN_MENU,
-    MENU_CREDITS,
-    MENU_SETTINGS,
-    GAME_ERROR_TEXTURE,
-    WIN
+// TODO: add a pause menu in the future maybe?
+enum class GameState { PLAYING, GAME_OVER, WIN, MAIN_MENU, GAME_ERROR_TEXTURE };
+
+struct TextSegment
+{
+    const char *text;
+    Color color;
+
+    TextSegment(const char *t, Color c) : text(t), color(c) {}
 };
 
 class Game
@@ -32,6 +33,7 @@ public:
 
     std::unique_ptr<Player> player;
     bool shouldClose;
+    Settings settings;
 
     void init();
     void reset();
@@ -44,19 +46,13 @@ public:
     void setGameState(GameState newState);
     void shakeWindow(float duration, float intensity);
     static float drawTextCenter(const char *text, float x, float y, float fontSize, Color color);
-    static float drawTextCombined(float x,
-                                  float y,
-                                  float fontSize,
-                                  const char *text1,
-                                  Color color1,
-                                  const char *text2,
-                                  Color color2);
+    static float
+    drawTextCombined(float x, float y, float fontSize, std::initializer_list<TextSegment> segments);
     static void marqueeText(const char *text, float y, float fontSize, Color color, float speed);
     void disconnectDiscord();
     void connectDiscord();
 
 private:
-    Settings settings;
     GameState gameState;
     // we set it to PLAYING as Game::update() needs to be called at least once with MAIN_MENU state
     GameState lastGameState = GameState::PLAYING;

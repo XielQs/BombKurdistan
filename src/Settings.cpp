@@ -3,6 +3,7 @@
 #include "Constants.hpp"
 #include "Game.hpp"
 #include "Input.hpp"
+#include "MainMenu.hpp"
 #include "raylib.h"
 
 #include <filesystem>
@@ -116,8 +117,6 @@ void Settings::handleInput()
 
 void Settings::draw() const
 {
-    Game::drawTextCenter("Kurdistan Bombalayici", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -7,
-                         20, WHITE);
     switch (state) {
         case SettingsState::MAIN_MENU:
             drawMainMenu();
@@ -134,8 +133,8 @@ void Settings::draw() const
     }
 
     if (state != SettingsState::MAIN_MENU) {
-        Game::drawTextCombined(SCREEN_DRAW_X, SCREEN_HEIGHT - TEXT_HEIGHT * 4, 20, "VAZGECMEK", RED,
-                               "icin ESC bas", WHITE);
+        Game::drawTextCombined(SCREEN_DRAW_X, SCREEN_HEIGHT - TEXT_HEIGHT * 4, 20,
+                               {{"VAZGECMEK", RED}, {"icin ESC bas", WHITE}});
 
         Game::drawTextCenter("Deger degistirmek icin < veya > tuslarini kullan", SCREEN_DRAW_X,
                              SCREEN_HEIGHT - TEXT_HEIGHT * 2, 20, GRAY);
@@ -144,15 +143,18 @@ void Settings::draw() const
 
 void Settings::drawMainMenu() const
 {
-    Game::drawTextCenter("Ayarlar", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -6, 20, WHITE);
+    Game::drawTextCenter("Ayarlar", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20, WHITE);
 
-    const char *options[] = {"Video Ayarlari", "Ses Ayarlari", "Diger Ayarlar", "Geri Don"};
+    const char *options[] = {"Video Ayarlari", "Ses Ayarlari", "Diger Ayarlar"};
 
     for (size_t i = 0; i < std::size(options); ++i) {
         const Color color = (menuOption == static_cast<int>(i)) ? YELLOW : GRAY;
         const float y = SCREEN_DRAW_Y + TEXT_HEIGHT * (0 + i);
         Game::drawTextCenter(options[i], SCREEN_DRAW_X, y, 20, color);
     }
+
+    Game::drawTextCenter("Geri Don", SCREEN_DRAW_X, SCREEN_HEIGHT - TEXT_HEIGHT * 4, 20,
+                         (menuOption == 3) ? YELLOW : GRAY);
 
     Game::drawTextCenter("Secim yapmak icin ok tuslarini kullan, enter veya space tusu ile sec",
                          SCREEN_DRAW_X, SCREEN_HEIGHT - TEXT_HEIGHT * 2, 20, GRAY);
@@ -161,7 +163,7 @@ void Settings::drawMainMenu() const
 void Settings::handleMainMenuInput()
 {
     if (Input::isEscapeKey()) {
-        game.setGameState(GameState::MAIN_MENU);
+        MainMenu::state = MainMenuState::MAIN_MENU;
         menuOption = 0; // reset menu option
         return;
     }
@@ -183,7 +185,7 @@ void Settings::handleMainMenuInput()
                 state = SettingsState::OTHER_SETTINGS;
                 break;
             case 3: // Geri Don
-                game.setGameState(GameState::MAIN_MENU);
+                MainMenu::state = MainMenuState::MAIN_MENU;
                 menuOption = 0; // reset menu option
                 break;
             default:
@@ -194,18 +196,18 @@ void Settings::handleMainMenuInput()
 
 void Settings::drawVideoSettings() const
 {
-    Game::drawTextCenter("Video Ayarlari", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -6, 20,
+    Game::drawTextCenter("Video Ayarlari", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
                          WHITE);
 
     drawToggleOption("VSync", tempConfig.vsync, 0, SCREEN_DRAW_Y + TEXT_HEIGHT * 0);
 
     const float endX = Game::drawTextCombined(
-        SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20, "FPS Limiti",
-        selectedOption == 1 ? YELLOW : GRAY,
-        tempConfig.vsync
-            ? "VSync"
-            : (tempConfig.targetFPS == 0 ? "Sinirsiz" : TextFormat("%d", tempConfig.targetFPS)),
-        WHITE);
+        SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20,
+        {{"FPS Limiti", selectedOption == 1 ? YELLOW : GRAY},
+         {tempConfig.vsync            ? "VSync"
+          : tempConfig.targetFPS == 0 ? "Sinirsiz"
+                                      : TextFormat("%d", tempConfig.targetFPS),
+          WHITE}});
 
     if (tempConfig.targetFPS == 0 && !tempConfig.vsync) {
         DrawText("Ekran yirtilmasi olabilir", endX + 10.f, SCREEN_DRAW_Y + TEXT_HEIGHT * 1 - 8, 18,
@@ -264,7 +266,7 @@ void Settings::handleVideoSettingsInput()
 
 void Settings::drawAudioSettings() const
 {
-    Game::drawTextCenter("Ses Ayarlari", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -6, 20,
+    Game::drawTextCenter("Ses Ayarlari", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
                          WHITE);
 
     drawToggleOption("Muzigi sustur", tempConfig.muteMusic, 0, SCREEN_DRAW_Y + TEXT_HEIGHT * 0);
@@ -299,13 +301,17 @@ void Settings::handleAudioSettingsInput()
 
 void Settings::drawOtherSettings() const
 {
-    Game::drawTextCenter("Diger Ayarlar", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -6, 20,
+    Game::drawTextCenter("Diger Ayarlar", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
                          WHITE);
 
     drawToggleOption("Discord RPC", tempConfig.discordRPC, 0, SCREEN_DRAW_Y + TEXT_HEIGHT * 0);
+#ifdef DISCORD_RPC_ENABLED
     Game::drawTextCenter("Discord durumunuzda gosterilecek", SCREEN_DRAW_X,
                          SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 19, GRAY);
-
+#else
+    Game::drawTextCenter("Platformunuz bu ozelligi desteklemiyor", SCREEN_DRAW_X,
+                         SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 19, RED);
+#endif
     Game::drawTextCenter("AYARLARI UYGULA", SCREEN_DRAW_X, SCREEN_HEIGHT - TEXT_HEIGHT * 5, 20,
                          (selectedOption == 1) ? GREEN : DARKGREEN);
 }
@@ -340,5 +346,5 @@ void Settings::drawToggleOption(const char *label, bool option, int selectIndex,
     const Color statusColor = option ? GREEN : RED;
 
     const Color textColor = (selectedOption == selectIndex) ? YELLOW : GRAY;
-    Game::drawTextCombined(SCREEN_DRAW_X, y, 20, label, textColor, status, statusColor);
+    Game::drawTextCombined(SCREEN_DRAW_X, y, 20, {{label, textColor}, {status, statusColor}});
 }

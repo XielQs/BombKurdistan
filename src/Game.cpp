@@ -4,6 +4,7 @@
 #include "Difficulty.hpp"
 #include "GlobalBounds.hpp"
 #include "Input.hpp"
+#include "MainMenu.hpp"
 #include "raylib.h"
 #include "raymath.h"
 
@@ -175,14 +176,6 @@ void Game::draw() const
     BeginDrawing();
     ClearBackground(Color{10, 10, 10, 255});
 
-    const char *infoSection[] = {
-        "Cikmak icin ESC'ye bas",
-        "Secim yapmak icin ok tuslarini ya da 1, 2 veya 3'u kullanabilirsin",
-        "Oyuna baslamak icin SPACE veya ENTER'a bas",
-        "Yapimcilar ve ozel tesekkurler icin C'ye bas",
-        "Ayalar icin A'ya bas",
-    };
-
     switch (gameState) {
         case GameState::PLAYING:
             for (const auto &bomb : bombs)
@@ -196,14 +189,14 @@ void Game::draw() const
             // we are using DrawText instead of drawTextCenter to avoid text scaling issues
 
             // draw menu items
-            DrawText(TextFormat("Time: %s", formatTime()), GetScreenWidth() - TEXT_HEIGHT * 6,
+            DrawText(TextFormat("Zaman: %s", formatTime()), GetScreenWidth() - TEXT_HEIGHT * 6.5f,
                      TEXT_HEIGHT * 0.5, 20, WHITE);
             DrawText(TextFormat("FPS: %d", GetFPS()), GetScreenWidth() - TEXT_HEIGHT * 3,
                      GetScreenHeight() - TEXT_HEIGHT, 18, WHITE);
             if (isPaused) {
                 // blink effect
                 if (fmod(GetTime(), 1.0f) < 0.5f)
-                    drawTextCenter("PAUSED", SCREEN_DRAW_X, SCREEN_DRAW_Y, 40, WHITE);
+                    drawTextCenter("DURDURULDU", SCREEN_DRAW_X, SCREEN_DRAW_Y, 40, WHITE);
             }
             break;
         case GameState::GAME_OVER:
@@ -234,86 +227,14 @@ void Game::draw() const
             drawTextCenter(TextFormat("Bombalanan Sure: %s", formatTime()), SCREEN_DRAW_X,
                            SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, WHITE);
             drawTextCombined(SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20,
-                             "Oyun Modu:", WHITE, getDifficultyName(currentDifficulty),
-                             (currentDifficulty == Difficulty::EASY)     ? GREEN
-                             : (currentDifficulty == Difficulty::NORMAL) ? YELLOW
-                                                                         : DARKRED);
+                             {{"Oyun Modu:", WHITE},
+                              {getDifficultyName(currentDifficulty),
+                               currentDifficulty == Difficulty::EASY     ? GREEN
+                               : currentDifficulty == Difficulty::NORMAL ? YELLOW
+                                                                         : DARKRED}});
             break;
         case GameState::MAIN_MENU:
-            drawTextCenter("Kurdistan Bombalayici", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -5,
-                           20, WHITE);
-            drawTextCenter("Bu bir oyun projesidir tamamiyla eglence amaciyla uretilmistir",
-                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -4, 20, GRAY);
-            // select difficulty
-            drawTextCenter("Zorluk Secin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
-                           WHITE);
-            drawTextCenter("1. Kurt vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 0, 20,
-                           GREEN);
-            drawTextCenter("2. Turk vatandas", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20,
-                           YELLOW);
-            drawTextCenter("3. ULKUCU VATANDAS", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20,
-                           DARKRED);
-
-            // draw a (-) to indicate the current difficulty
-            if (currentDifficulty == Difficulty::EASY) {
-                drawTextCenter("-", SCREEN_DRAW_X - 95, SCREEN_DRAW_Y + TEXT_HEIGHT * 0, 20, GREEN);
-            } else if (currentDifficulty == Difficulty::NORMAL) {
-                drawTextCenter("-", SCREEN_DRAW_X - 100, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20,
-                               YELLOW);
-            } else if (currentDifficulty == Difficulty::HARD) {
-                drawTextCenter("-", SCREEN_DRAW_X - 125, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20,
-                               DARKRED);
-            }
-
-            for (size_t i = 0; i < std::size(infoSection); ++i) {
-                drawTextCenter(infoSection[i], SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * (i + 4),
-                               20, GRAY);
-            }
-
-            drawTextCenter("M ile muzigi ac/kapat", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 10,
-                           20, settings.config.muteMusic ? GRAY : WHITE);
-
-            if (currentDifficulty == Difficulty::HARD) {
-                drawTextCenter("sana guveniyoruz kaptan", SCREEN_DRAW_X,
-                               SCREEN_DRAW_Y + TEXT_HEIGHT * 11, 20, DARKRED);
-            }
-            break;
-        case GameState::MENU_CREDITS:
-            marqueeText("TesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkur"
-                        "lerTesekkurler",
-                        SCREEN_DRAW_Y + TEXT_HEIGHT * -8, 20, WHITE, 80.f);
-            drawTextCenter("Herkese ayri ayri tesekkurlerimi sunuyorum siz olmasaniz",
-                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -6, 20, GRAY);
-            drawTextCenter("BombKurdistan projesi bu kadar gelisemezdi <3", SCREEN_DRAW_X,
-                           SCREEN_DRAW_Y + TEXT_HEIGHT * -5, 20, GRAY);
-            drawTextCenter("(dunyanin en iyi oyun projesi)", SCREEN_DRAW_X,
-                           SCREEN_DRAW_Y + TEXT_HEIGHT * -4, 20, GRAY);
-
-            drawTextCenter("larei <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20, WHITE);
-            drawTextCenter("kosero <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -1, 20, WHITE);
-            drawTextCenter("yesil asya <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 0, 20,
-                           WHITE);
-            drawTextCenter("toby fox <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20,
-                           WHITE);
-
-            drawTextCenter("Dosya kaynakcasi:", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20,
-                           WHITE);
-            drawTextCenter("boss.png: wikipedia (goruntude oynadim azcik)", SCREEN_DRAW_X,
-                           SCREEN_DRAW_Y + TEXT_HEIGHT * 4, 20, GRAY);
-            drawTextCenter("bomb.png: stardew valley", SCREEN_DRAW_X,
-                           SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20, GRAY);
-            drawTextCenter("player.png: undertale", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 6,
-                           20, GRAY);
-            drawTextCenter("bg_music.mp3: larei atmisti bir youtube videosundan alinti",
-                           SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 7, 20, GRAY);
-            drawTextCenter("larei.png: larei.", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 8, 20,
-                           GRAY);
-
-            drawTextCenter("Ana menu icin ESC'ye bas", SCREEN_DRAW_X,
-                           SCREEN_DRAW_Y + TEXT_HEIGHT * 10, 20, WHITE);
-            break;
-        case GameState::MENU_SETTINGS:
-            settings.draw();
+            MainMenu::draw();
             break;
         case GameState::GAME_ERROR_TEXTURE:
             drawTextCenter("Bir hata olustu", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
@@ -334,16 +255,6 @@ void Game::draw() const
 
 void Game::handleInput()
 {
-    // gamepad Square button
-    if (Input::isMusicMuted()) {
-        settings.config.muteMusic = !settings.config.muteMusic;
-        settings.save();
-        if (settings.config.muteMusic)
-            StopMusicStream(bgMusic);
-        else if (gameState == GameState::PLAYING)
-            PlayMusicStream(bgMusic);
-    }
-
     switch (gameState) {
         case GameState::PLAYING:
             // gamepad Circle button
@@ -376,63 +287,7 @@ void Game::handleInput()
 #endif
             break;
         case GameState::MAIN_MENU:
-            if (Input::isKeyPressed(KEY_ONE))
-                currentDifficulty = Difficulty::EASY;
-            if (Input::isKeyPressed(KEY_TWO))
-                currentDifficulty = Difficulty::NORMAL;
-            if (Input::isKeyPressed(KEY_THREE))
-                currentDifficulty = Difficulty::HARD;
-            if (Input::isEscapeKey()) {
-                cleanup();
-            }
-            if (Input::isEnterOrSpace()) {
-                reset();
-                setGameState(GameState::PLAYING);
-            }
-            if (Input::isArrowUp()) {
-                currentDifficulty =
-                    static_cast<Difficulty>((static_cast<int>(currentDifficulty) + 2) % 3);
-            }
-            if (Input::isArrowDown()) {
-                currentDifficulty =
-                    static_cast<Difficulty>((static_cast<int>(currentDifficulty) + 1) % 3);
-            }
-            if (Input::isCreditsKey()) {
-                setGameState(GameState::MENU_CREDITS);
-            }
-            if (Input::isSettingsKey()) {
-                settings.selectedOption = 0; // reset selected option
-                settings.menuOption = 0;
-                settings.tempConfig = settings.config; // reset temp config to current config
-                setGameState(GameState::MENU_SETTINGS);
-            }
-            // select difficulty with mouse
-            if (Input::isLeftButton()) {
-                const auto [x, y] = GetMousePosition();
-                if (x >= SCREEN_DRAW_X - 100 && x <= SCREEN_DRAW_X + 100 &&
-                    y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 0 && y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 3) {
-                    if (y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 0 &&
-                        y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 1)
-                        currentDifficulty = Difficulty::EASY;
-                    else if (y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 1 &&
-                             y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 2)
-                        currentDifficulty = Difficulty::NORMAL;
-                    else if (y >= SCREEN_DRAW_Y + TEXT_HEIGHT * 2 &&
-                             y <= SCREEN_DRAW_Y + TEXT_HEIGHT * 3)
-                        currentDifficulty = Difficulty::HARD;
-                    Input::lockMouse();
-                    reset();
-                    setGameState(GameState::PLAYING);
-                }
-            }
-            break;
-        case GameState::MENU_CREDITS:
-            if (Input::isEscapeKey()) {
-                setGameState(GameState::MAIN_MENU);
-            }
-            break;
-        case GameState::MENU_SETTINGS:
-            settings.handleInput();
+            MainMenu::handleInput();
             break;
         case GameState::WIN:
         case GameState::GAME_OVER:
@@ -586,24 +441,36 @@ float Game::drawTextCenter(const char *text, float x, float y, float fontSize, C
 float Game::drawTextCombined(float x,
                              float y,
                              float fontSize,
-                             const char *text1,
-                             Color color1,
-                             const char *text2,
-                             Color color2)
+                             std::initializer_list<TextSegment> segments)
 {
+    if (segments.size() == 0)
+        return x;
     const float spacing = fontSize / 10;
-    const Vector2 text1Size = MeasureTextEx(GetFontDefault(), text1, fontSize, spacing);
-    const Vector2 text2Size = MeasureTextEx(GetFontDefault(), text2, fontSize, spacing);
+    const float spaceWidth = fontSize / 2.0f;
 
-    const int spaceWidth = fontSize / 2.f;
-    const float totalWidth = text1Size.x + spaceWidth + text2Size.x;
+    std::vector<Vector2> sizes;
+    float totalWidth = 0;
+    float maxHeight = 0;
+    for (const auto &segment : segments) {
+        Vector2 size = MeasureTextEx(GetFontDefault(), segment.text, fontSize, spacing);
+        sizes.push_back(size);
+        totalWidth += size.x;
+        maxHeight = std::max(maxHeight, size.y);
+    }
 
-    const float startX = x - totalWidth / 2.f;
-    const float startY = y - std::max(text1Size.y, text2Size.y) / 2.f;
+    totalWidth += (segments.size() - 1) * spaceWidth;
 
-    DrawTextEx(GetFontDefault(), text1, {startX, startY}, fontSize, spacing, color1);
-    DrawTextEx(GetFontDefault(), text2, {startX + text1Size.x + spaceWidth, startY}, fontSize,
-               spacing, color2);
+    const float startX = x - totalWidth / 2.0f;
+    const float startY = y - maxHeight / 2.0f;
+
+    float currentX = startX;
+    int i = 0;
+    for (const auto &segment : segments) {
+        DrawTextEx(GetFontDefault(), segment.text, {currentX, startY}, fontSize, spacing,
+                   segment.color);
+        currentX += sizes[i].x + spaceWidth;
+        i++;
+    }
 
     return startX + totalWidth;
 }
