@@ -72,6 +72,7 @@ public:
     Config tempConfig{};
 
     int selectedOption = 0;
+    int menuOption = 0; // used for main menu navigation
 
     void init();
     void reset();

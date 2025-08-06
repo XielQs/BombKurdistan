@@ -401,7 +401,8 @@ void Game::handleInput()
                 setGameState(GameState::MENU_CREDITS);
             }
             if (Input::isSettingsKey()) {
-                settings.selectedOption = 0;           // reset selected option
+                settings.selectedOption = 0; // reset selected option
+                settings.menuOption = 0;
                 settings.tempConfig = settings.config; // reset temp config to current config
                 setGameState(GameState::MENU_SETTINGS);
             }

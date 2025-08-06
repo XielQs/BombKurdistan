@@ -149,7 +149,7 @@ void Settings::drawMainMenu() const
     const char *options[] = {"Video Ayarlari", "Ses Ayarlari", "Diger Ayarlar", "Geri Don"};
 
     for (size_t i = 0; i < std::size(options); ++i) {
-        const Color color = (selectedOption == static_cast<int>(i)) ? YELLOW : GRAY;
+        const Color color = (menuOption == static_cast<int>(i)) ? YELLOW : GRAY;
         const float y = SCREEN_DRAW_Y + TEXT_HEIGHT * (0 + i);
         Game::drawTextCenter(options[i], SCREEN_DRAW_X, y, 20, color);
     }
@@ -162,31 +162,29 @@ void Settings::handleMainMenuInput()
 {
     if (Input::isEscapeKey()) {
         game.setGameState(GameState::MAIN_MENU);
-        selectedOption = 0; // reset selected option
+        menuOption = 0; // reset menu option
         return;
     }
 
     if (Input::isArrowUp())
-        selectedOption = (selectedOption - 1 + 4) % 4;
+        menuOption = (menuOption - 1 + 4) % 4;
     if (Input::isArrowDown())
-        selectedOption = (selectedOption + 1) % 4;
+        menuOption = (menuOption + 1) % 4;
 
     if (Input::isEnterOrSpace() || Input::isArrowLeft() || Input::isArrowRight()) {
-        switch (selectedOption) {
+        switch (menuOption) {
             case 0: // Video Ayarlari
                 state = SettingsState::VIDEO_SETTINGS;
-                selectedOption = 0;
                 break;
             case 1: // Ses Ayarlari
                 state = SettingsState::AUDIO_SETTINGS;
-                selectedOption = 0;
                 break;
             case 2: // Diger Ayarlar
                 state = SettingsState::OTHER_SETTINGS;
-                selectedOption = 0;
                 break;
             case 3: // Geri Don
                 game.setGameState(GameState::MAIN_MENU);
+                menuOption = 0; // reset menu option
                 break;
             default:
                 break;
