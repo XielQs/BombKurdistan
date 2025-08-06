@@ -28,12 +28,39 @@ jobs:
       - name: Calculate version
         id: version
         run: |
-          RUN_NUM=${{ github.run_number }}
-          MINOR_VERSION=$((${{ github.run_number }} / 10))
-          PATCH_VERSION=$((${{ github.run_number }} % 10))
-          VERSION="${{ env.MAJOR_VERSION }}.${MINOR_VERSION}.${PATCH_VERSION}"
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "Version will be: ${VERSION}"
+          LATEST_TAG=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
+          
+          if [[ -n "$LATEST_TAG" ]]; then
+            echo "Latest release found: $LATEST_TAG"
+            # strip 'v' and split into components
+            VERSION_NUM=${LATEST_TAG#v}
+            IFS='.' read -r _ MINOR PATCH <<< "$VERSION_NUM"
+          
+            # increment patch version
+            PATCH=$((PATCH + 1))
+          
+            # if patch reaches 10, increment minor and reset patch
+            if [[ $PATCH -ge 10 ]]; then
+              MINOR=$((MINOR + 1))
+              PATCH=0
+            fi
+
+            NEW_VERSION="${{ env.MAJOR_VERSION }}.${MINOR}.${PATCH}"
+            echo "New version from release: $NEW_VERSION"
+          else
+            echo "No releases found, calculating from run number"
+            # fallback to run number calculation
+            RUN_NUM=${{ github.run_number }}
+            MINOR_VERSION=$((RUN_NUM / 10))
+            PATCH_VERSION=$((RUN_NUM % 10))
+            NEW_VERSION="${{ env.MAJOR_VERSION }}.${MINOR_VERSION}.${PATCH_VERSION}"
+            echo "New version from run number: $NEW_VERSION"
+          fi
+          
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Final version will be: $NEW_VERSION"
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
 
       - name: Install dependencies
         run: |
