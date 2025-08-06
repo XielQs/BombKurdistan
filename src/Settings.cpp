@@ -201,7 +201,7 @@ void Settings::drawVideoSettings() const
 
     drawToggleOption("VSync", tempConfig.vsync, 0, SCREEN_DRAW_Y + TEXT_HEIGHT * 0);
 
-    const int endX = Game::drawTextCombined(
+    const float endX = Game::drawTextCombined(
         SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20, "FPS Limiti",
         selectedOption == 1 ? YELLOW : GRAY,
         tempConfig.vsync
@@ -210,7 +210,7 @@ void Settings::drawVideoSettings() const
         WHITE);
 
     if (tempConfig.targetFPS == 0 && !tempConfig.vsync) {
-        DrawText("Ekran yirtilmasi olabilir", endX + 10, SCREEN_DRAW_Y + TEXT_HEIGHT * 1 - 8, 18,
+        DrawText("Ekran yirtilmasi olabilir", endX + 10.f, SCREEN_DRAW_Y + TEXT_HEIGHT * 1 - 8, 18,
                  RED);
     }
 
@@ -305,6 +305,8 @@ void Settings::drawOtherSettings() const
                          WHITE);
 
     drawToggleOption("Discord RPC", tempConfig.discordRPC, 0, SCREEN_DRAW_Y + TEXT_HEIGHT * 0);
+    Game::drawTextCenter("Discord durumunuzda gosterilecek", SCREEN_DRAW_X,
+                         SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 19, GRAY);
 
     Game::drawTextCenter("AYARLARI UYGULA", SCREEN_DRAW_X, SCREEN_HEIGHT - TEXT_HEIGHT * 5, 20,
                          (selectedOption == 1) ? GREEN : DARKGREEN);

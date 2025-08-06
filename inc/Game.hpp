@@ -43,14 +43,14 @@ public:
     void cleanup();
     void setGameState(GameState newState);
     void shakeWindow(float duration, float intensity);
-    static int drawTextCenter(const char *text, float x, float y, float fontSize, Color color);
-    static int drawTextCombined(float x,
-                                float y,
-                                float fontSize,
-                                const char *text1,
-                                Color color1,
-                                const char *text2,
-                                Color color2);
+    static float drawTextCenter(const char *text, float x, float y, float fontSize, Color color);
+    static float drawTextCombined(float x,
+                                  float y,
+                                  float fontSize,
+                                  const char *text1,
+                                  Color color1,
+                                  const char *text2,
+                                  Color color2);
     static void marqueeText(const char *text, float y, float fontSize, Color color, float speed);
     void disconnectDiscord();
     void connectDiscord();

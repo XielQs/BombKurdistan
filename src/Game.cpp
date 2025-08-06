@@ -573,7 +573,7 @@ void Game::shakeWindow(float duration, float intensity)
     isShaking = true;
 }
 
-int Game::drawTextCenter(const char *text, float x, float y, float fontSize, Color color)
+float Game::drawTextCenter(const char *text, float x, float y, float fontSize, Color color)
 {
     const float spacing = fontSize / 10;
     const Vector2 textSize = MeasureTextEx(GetFontDefault(), text, fontSize, spacing);
@@ -582,13 +582,13 @@ int Game::drawTextCenter(const char *text, float x, float y, float fontSize, Col
     return position.x + textSize.x;
 }
 
-int Game::drawTextCombined(float x,
-                           float y,
-                           float fontSize,
-                           const char *text1,
-                           Color color1,
-                           const char *text2,
-                           Color color2)
+float Game::drawTextCombined(float x,
+                             float y,
+                             float fontSize,
+                             const char *text1,
+                             Color color1,
+                             const char *text2,
+                             Color color2)
 {
     const float spacing = fontSize / 10;
     const Vector2 text1Size = MeasureTextEx(GetFontDefault(), text1, fontSize, spacing);
