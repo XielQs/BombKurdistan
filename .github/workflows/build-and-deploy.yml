@@ -41,7 +41,7 @@ jobs:
           sudo apt install -y \
             make cmake \
             libx11-dev libxcursor-dev libxrandr-dev libxi-dev libxinerama-dev libgl1-mesa-dev \
-            zip unzip \
+            libjansson-dev zip unzip \
             mingw-w64 mingw-w64-tools
 
       - name: Make build script executable
