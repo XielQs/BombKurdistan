@@ -3,6 +3,7 @@
 #define SETTINGS_HPP
 
 #include "Constants.hpp"
+#include "Game.hpp"
 #include "raylib.h"
 
 #include <fstream>
@@ -65,36 +66,37 @@ struct Config
 class Settings
 {
 public:
-    Config config{};
+    static Config config;
     // using tempConfig to store changes before applying them
     // maybe copying the whole config is not the best idea
     // but that's just a pixel game :pray:
-    Config tempConfig{};
+    static Config tempConfig;
 
-    int selectedOption = 0;
-    int menuOption = 0; // used for main menu navigation
+    static int selectedOption;
+    static int menuOption; // used for main menu navigation
+    static GameState previousGameState;
 
-    void init();
-    void reset();
-    void handleInput();
-    void draw() const;
-    void save() const;
+    static void init();
+    static void reset();
+    static void handleInput();
+    static void draw();
+    static void save();
 
 private:
-    SettingsState state = SettingsState::MAIN_MENU;
+    static SettingsState state;
     static std::string settingsPath;
 
-    void load();
-    void applySettings();
-    void drawMainMenu() const;
-    void handleMainMenuInput();
-    void drawVideoSettings() const;
-    void handleVideoSettingsInput();
-    void drawAudioSettings() const;
-    void handleAudioSettingsInput();
-    void drawOtherSettings() const;
-    void handleOtherSettingsInput();
-    void drawToggleOption(const char *label, bool option, int selectIndex, float y) const;
+    static void load();
+    static void applySettings();
+    static void drawMainMenu();
+    static void handleMainMenuInput();
+    static void drawVideoSettings();
+    static void handleVideoSettingsInput();
+    static void drawAudioSettings();
+    static void handleAudioSettingsInput();
+    static void drawOtherSettings();
+    static void handleOtherSettingsInput();
+    static void drawToggleOption(const char *label, bool option, int selectIndex, float y);
 };
 
 #endif // SETTINGS_HPP

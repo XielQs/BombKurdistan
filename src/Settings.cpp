@@ -15,6 +15,13 @@ extern Game game;
 std::string Settings::settingsPath =
     std::string(getenv("HOME")) + "/.config/BombKurdistan/settings.cfg";
 
+Config Settings::config{};
+Config Settings::tempConfig{};
+int Settings::selectedOption = 0;
+int Settings::menuOption = 0;
+GameState Settings::previousGameState = GameState::MAIN_MENU;
+SettingsState Settings::state = SettingsState::MAIN_MENU;
+
 void Settings::init()
 {
     load();
@@ -56,7 +63,7 @@ void Settings::load()
     file.close();
 }
 
-void Settings::save() const
+void Settings::save()
 {
     std::filesystem::create_directory(std::filesystem::path(settingsPath).parent_path());
     std::ofstream file(settingsPath);
@@ -115,7 +122,7 @@ void Settings::handleInput()
     }
 }
 
-void Settings::draw() const
+void Settings::draw()
 {
     switch (state) {
         case SettingsState::MAIN_MENU:
@@ -141,7 +148,7 @@ void Settings::draw() const
     }
 }
 
-void Settings::drawMainMenu() const
+void Settings::drawMainMenu()
 {
     Game::drawTextCenter("Ayarlar", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20, WHITE);
 
@@ -163,8 +170,11 @@ void Settings::drawMainMenu() const
 void Settings::handleMainMenuInput()
 {
     if (Input::isEscapeKey()) {
-        MainMenu::state = MainMenuState::MAIN_MENU;
-        menuOption = 0; // reset menu option
+        if (previousGameState == GameState::PAUSED)
+            game.setGameState(GameState::PAUSED);
+        else
+            MainMenu::state = MainMenuState::MAIN_MENU;
+        menuOption = 0;
         return;
     }
 
@@ -185,7 +195,10 @@ void Settings::handleMainMenuInput()
                 state = SettingsState::OTHER_SETTINGS;
                 break;
             case 3: // Geri Don
-                MainMenu::state = MainMenuState::MAIN_MENU;
+                if (previousGameState == GameState::PAUSED)
+                    game.setGameState(GameState::PAUSED);
+                else
+                    MainMenu::state = MainMenuState::MAIN_MENU;
                 menuOption = 0; // reset menu option
                 break;
             default:
@@ -194,7 +207,7 @@ void Settings::handleMainMenuInput()
     }
 }
 
-void Settings::drawVideoSettings() const
+void Settings::drawVideoSettings()
 {
     Game::drawTextCenter("Video Ayarlari", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
                          WHITE);
@@ -264,7 +277,7 @@ void Settings::handleVideoSettingsInput()
     }
 }
 
-void Settings::drawAudioSettings() const
+void Settings::drawAudioSettings()
 {
     Game::drawTextCenter("Ses Ayarlari", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
                          WHITE);
@@ -299,7 +312,7 @@ void Settings::handleAudioSettingsInput()
     }
 }
 
-void Settings::drawOtherSettings() const
+void Settings::drawOtherSettings()
 {
     Game::drawTextCenter("Diger Ayarlar", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
                          WHITE);
@@ -340,7 +353,7 @@ void Settings::handleOtherSettingsInput()
     }
 }
 
-void Settings::drawToggleOption(const char *label, bool option, int selectIndex, float y) const
+void Settings::drawToggleOption(const char *label, bool option, int selectIndex, float y)
 {
     const char *status = option ? "ACIK" : "KAPALI";
     const Color statusColor = option ? GREEN : RED;

@@ -5,6 +5,8 @@
 #include "GlobalBounds.hpp"
 #include "Input.hpp"
 #include "MainMenu.hpp"
+#include "PauseScreen.hpp"
+#include "Settings.hpp"
 #include "raylib.h"
 #include "raymath.h"
 
@@ -15,8 +17,7 @@
 
 Game::Game()
     : player(nullptr), shouldClose(false), gameState(GameState::MAIN_MENU), bombTimer(0.f),
-      attackTimer(0.f), timeStart(GetTime()), timeEnd(0.f), boss(nullptr), isShaking(false),
-      isPaused(false)
+      attackTimer(0.f), timeStart(GetTime()), timeEnd(0.f), boss(nullptr), isShaking(false)
 {
 }
 
@@ -41,7 +42,7 @@ void Game::init()
         TraceLog(LOG_ERROR, "Failed to load textures");
         setGameState(GameState::GAME_ERROR_TEXTURE);
     } else
-        settings.init();
+        Settings::init();
 
     player = std::make_unique<Player>(playerTexture);
     boss = std::make_unique<Boss>(bossTexture, lareiTexture);
@@ -57,7 +58,6 @@ void Game::reset()
     bossAttacks.clear();
     bombs.clear();
     isShaking = false;
-    isPaused = false;
 
     if (player)
         player->init();
@@ -69,10 +69,7 @@ void Game::reset()
 
 void Game::update()
 {
-    if (isPaused)
-        return; // do not update if paused
-
-    const bool shouldPlay = (gameState == GameState::PLAYING && !settings.config.muteMusic);
+    const bool shouldPlay = (gameState == GameState::PLAYING && !Settings::config.muteMusic);
 
     if (shouldPlay && !IsMusicStreamPlaying(bgMusic)) {
         PlayMusicStream(bgMusic);
@@ -82,93 +79,101 @@ void Game::update()
 
     UpdateMusicStream(bgMusic);
 
-    if (gameState == GameState::PLAYING) {
-        Input::unlockMouse();
-        if (lastGameState != GameState::PLAYING) {
-            TraceLog(LOG_INFO, "Game started");
-            setDiscordActivity(getDifficultyName(currentDifficulty), "Kurdistani Bombaliyor",
-                               timeStart / 1000);
-        }
+    switch (gameState) {
+        case GameState::PLAYING:
+            Input::unlockMouse();
 
-        updateTimers();
-        if (player)
-            player->update();
-        if (boss)
-            boss->update(GetFrameTime());
+            updateTimers();
+            if (player)
+                player->update();
+            if (boss)
+                boss->update(GetFrameTime());
 
-        // we are not using elements.erase(elements.begin() + i) because it has O(n²) complexity
-        // instead we are using std::erase_if to remove all inactive elements
+            // we are not using elements.erase(elements.begin() + i) because it has O(n²) complexity
+            // instead we are using std::erase_if to remove all inactive elements
 
-        // update boss attacks
-        for (size_t i = 0; i < bossAttacks.size(); ++i) {
-            BossAttack &attack = *bossAttacks[i];
-            attack.update(*player);
-            if (!attack.isAlive()) {
-                std::erase_if(bossAttacks, [](auto &attk) { return !attk->isAlive(); });
-                --i;
+            // update boss attacks
+            for (size_t i = 0; i < bossAttacks.size(); ++i) {
+                BossAttack &attack = *bossAttacks[i];
+                attack.update(*player);
+                if (!attack.isAlive()) {
+                    std::erase_if(bossAttacks, [](auto &attk) { return !attk->isAlive(); });
+                    --i;
+                }
             }
-        }
 
-        // update bombs
-        for (size_t i = 0; i < bombs.size(); ++i) {
-            Bomb &bomb = *bombs[i];
-            bomb.update(*player, *boss, GetFrameTime());
-            if (!bomb.isAlive()) {
-                std::erase_if(bombs, [](auto &bmb) { return !bmb->isAlive(); });
-                --i;
+            // update bombs
+            for (size_t i = 0; i < bombs.size(); ++i) {
+                Bomb &bomb = *bombs[i];
+                bomb.update(*player, *boss, GetFrameTime());
+                if (!bomb.isAlive()) {
+                    std::erase_if(bombs, [](auto &bmb) { return !bmb->isAlive(); });
+                    --i;
+                }
             }
-        }
 
-        if (player->health <= 0.f)
-            setGameState(GameState::GAME_OVER);
-        if (boss->health <= 0.f)
-            setGameState(GameState::WIN);
+            if (player->health <= 0.f)
+                setGameState(GameState::GAME_OVER);
+            if (boss->health <= 0.f)
+                setGameState(GameState::WIN);
 
-        // shake the window
-        if (isShaking) {
-            const float remainingTime = shakeEndTime - GetTime();
-            if (remainingTime > 0) {
-                const float duration =
-                    shakeEndTime - (shakeEndTime - remainingTime); // shake duration
-                const float progress = remainingTime / duration;   // shake progress
+            // shake the window
+            if (isShaking) {
+                const float remainingTime = shakeEndTime - GetTime();
+                if (remainingTime > 0) {
+                    const float duration =
+                        shakeEndTime - (shakeEndTime - remainingTime); // shake duration
+                    const float progress = remainingTime / duration;   // shake progress
 
-                const float currentIntensity =
-                    shakeIntensity * progress; // intensity decreases over time
+                    const float currentIntensity =
+                        shakeIntensity * progress; // intensity decreases over time
 
-                // we are using a random angle to shake the window
-                // shake the window in a circle
-                const float angle = GetRandomValue(0, 360) * DEG2RAD;
-                const float offsetX = cosf(angle) * currentIntensity;
-                const float offsetY = sinf(angle) * currentIntensity;
+                    // we are using a random angle to shake the window
+                    // shake the window in a circle
+                    const float angle = GetRandomValue(0, 360) * DEG2RAD;
+                    const float offsetX = cosf(angle) * currentIntensity;
+                    const float offsetY = sinf(angle) * currentIntensity;
 
-                SetWindowPosition(windowPos.x + offsetX, windowPos.y + offsetY);
-            } else {
-                // reset window position
-                SetWindowPosition(windowPos.x, windowPos.y);
-                isShaking = false;
+                    SetWindowPosition(windowPos.x + offsetX, windowPos.y + offsetY);
+                } else {
+                    // reset window position
+                    SetWindowPosition(windowPos.x, windowPos.y);
+                    isShaking = false;
+                }
             }
+            break;
+        default:
+            player->resetMouseTarget(); // reset mouse target when not playing
+            break;
+    }
+
+    if (gameState != lastGameState) {
+        switch (gameState) {
+            case GameState::MAIN_MENU:
+                TraceLog(LOG_INFO, "Main menu");
+                setDiscordActivity("Ana menude", nullptr, GetTime() / 1000);
+                break;
+            case GameState::PLAYING:
+                TraceLog(LOG_INFO, "Game started");
+                setDiscordActivity(getDifficultyName(currentDifficulty), "Kurdistani Bombaliyor",
+                                   timeStart / 1000);
+                break;
+            case GameState::WIN:
+                TraceLog(LOG_INFO, "Game won");
+                setDiscordActivity(getDifficultyName(currentDifficulty), "Ankara kurtarildi!",
+                                   GetTime() / 1000);
+                break;
+            case GameState::GAME_OVER:
+                TraceLog(LOG_INFO, "Game over");
+                setDiscordActivity(getDifficultyName(currentDifficulty), "Ankara dustu!",
+                                   GetTime() / 1000);
+                break;
+            default:
+                break;
         }
-    } else {
-        player->resetMouseTarget(); // reset mouse target when not playing
-    }
 
-    if (gameState == GameState::MAIN_MENU && lastGameState != GameState::MAIN_MENU) {
-        TraceLog(LOG_INFO, "Main menu");
-        setDiscordActivity("Ana menude", nullptr, GetTime() / 1000);
+        lastGameState = gameState;
     }
-
-    if (gameState == GameState::WIN && lastGameState != GameState::WIN) {
-        TraceLog(LOG_INFO, "Game won");
-        setDiscordActivity(getDifficultyName(currentDifficulty), "Ankara kurtarildi!",
-                           GetTime() / 1000);
-    }
-
-    if (gameState == GameState::GAME_OVER && lastGameState != GameState::GAME_OVER) {
-        TraceLog(LOG_INFO, "Game over");
-        setDiscordActivity(getDifficultyName(currentDifficulty), "Ankara dustu!", GetTime() / 1000);
-    }
-
-    lastGameState = gameState;
 }
 
 void Game::draw() const
@@ -193,11 +198,6 @@ void Game::draw() const
                      TEXT_HEIGHT * 0.5, 20, WHITE);
             DrawText(TextFormat("FPS: %d", GetFPS()), GetScreenWidth() - TEXT_HEIGHT * 3,
                      GetScreenHeight() - TEXT_HEIGHT, 18, WHITE);
-            if (isPaused) {
-                // blink effect
-                if (fmod(GetTime(), 1.0f) < 0.5f)
-                    drawTextCenter("DURDURULDU", SCREEN_DRAW_X, SCREEN_DRAW_Y, 40, WHITE);
-            }
             break;
         case GameState::GAME_OVER:
             drawTextCenter("Beceriksizsin", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
@@ -236,6 +236,9 @@ void Game::draw() const
         case GameState::MAIN_MENU:
             MainMenu::draw();
             break;
+        case GameState::PAUSED:
+            PauseScreen::draw();
+            break;
         case GameState::GAME_ERROR_TEXTURE:
             drawTextCenter("Bir hata olustu", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
                            RED);
@@ -260,22 +263,8 @@ void Game::handleInput()
             // gamepad Circle button
             if (Input::isEscapeKey()) {
                 TraceLog(LOG_INFO, "Game paused");
-                setGameState(GameState::MAIN_MENU);
+                setGameState(GameState::PAUSED);
                 return;
-            }
-            // gamepad L1 button
-            if (Input::isPauseKey()) {
-                isPaused = !isPaused;
-                if (isPaused) {
-                    timeEnd = GetTime();
-                    TraceLog(LOG_INFO, "Game paused");
-                    PauseMusicStream(bgMusic);
-                } else {
-                    timeStart += GetTime() - timeEnd;
-                    timeEnd = 0.f;
-                    TraceLog(LOG_INFO, "Game resumed");
-                    PlayMusicStream(bgMusic);
-                }
             }
 #ifdef DEBUG_MODE
             if (Input::isKeyPressed(KEY_I))
@@ -288,6 +277,9 @@ void Game::handleInput()
             break;
         case GameState::MAIN_MENU:
             MainMenu::handleInput();
+            break;
+        case GameState::PAUSED:
+            PauseScreen::handleInput();
             break;
         case GameState::WIN:
         case GameState::GAME_OVER:
@@ -340,18 +332,23 @@ void Game::cleanup()
 
 void Game::setGameState(GameState newState)
 {
-    gameState = newState;
-    if (gameState != GameState::PLAYING) {
-        if (isShaking) {
-            isShaking = false;
-            SetWindowPosition(windowPos.x, windowPos.y);
-        }
-        isPaused = false;
+    if (newState != GameState::PLAYING && isShaking) {
+        isShaking = false;
+        SetWindowPosition(windowPos.x, windowPos.y);
     }
-    if (gameState == GameState::GAME_OVER || gameState == GameState::WIN) {
+
+    if (newState == GameState::GAME_OVER || newState == GameState::WIN ||
+        newState == GameState::PAUSED) {
         // stop the game timer
         timeEnd = GetTime();
     }
+
+    if (newState == GameState::PLAYING && gameState == GameState::PAUSED) {
+        timeStart += GetTime() - timeEnd;
+        timeEnd = 0.f;
+    }
+
+    gameState = newState;
 }
 
 void Game::updateTimers()
@@ -533,6 +530,7 @@ void Game::connectDiscord()
 #endif
 }
 
+// TODO: fix time issue when user pauses the game
 const char *Game::formatTime() const
 {
     const float timeElapsed = (timeEnd > 0 ? timeEnd : GetTime()) - timeStart;

@@ -3,6 +3,7 @@
 #include "Difficulty.hpp"
 #include "Game.hpp"
 #include "Input.hpp"
+#include "Settings.hpp"
 
 extern Game game;
 
@@ -30,7 +31,7 @@ void MainMenu::draw()
             drawCredits();
             break;
         case MainMenuState::SETTINGS:
-            game.settings.draw();
+            Settings::draw();
             break;
     }
 }
@@ -50,7 +51,7 @@ void MainMenu::handleInput()
             }
             break;
         case MainMenuState::SETTINGS:
-            game.settings.handleInput();
+            Settings::handleInput();
             break;
     }
 }
@@ -59,7 +60,7 @@ void MainMenu::drawMainMenu()
 {
     Game::drawTextCenter("Ana Menu", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20, WHITE);
 
-    Game::drawTextCenter("Oyun Baslat", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20,
+    Game::drawTextCenter("Oyuna Basla", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20,
                          selectedOption == 0 ? GREEN : GRAY);
     Game::drawTextCenter("Ayarlar", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20,
                          selectedOption == 1 ? YELLOW : GRAY);
@@ -87,10 +88,10 @@ void MainMenu::handleMainMenuInput()
                 state = MainMenuState::SELECT_DIFFICULTY;
                 break;
             case 1: // Ayarlar
-                game.settings.selectedOption = 0;
-                game.settings.menuOption = 0;
-                game.settings.tempConfig =
-                    game.settings.config; // reset temp config to current config
+                Settings::previousGameState = GameState::MAIN_MENU;
+                Settings::selectedOption = 0;
+                Settings::menuOption = 0;
+                Settings::tempConfig = Settings::config; // reset temp config to current config
                 state = MainMenuState::SETTINGS;
                 break;
             case 2: // Yapimcilar

@@ -6,7 +6,6 @@
 #include "Boss.hpp"
 #include "BossAttack.hpp"
 #include "Player.hpp"
-#include "Settings.hpp"
 #include "raylib.h"
 #include <memory>
 #include <vector>
@@ -14,8 +13,7 @@
 #include "discordrpc.h"
 #endif
 
-// TODO: add a pause menu in the future maybe?
-enum class GameState { PLAYING, GAME_OVER, WIN, MAIN_MENU, GAME_ERROR_TEXTURE };
+enum class GameState { PLAYING, GAME_OVER, WIN, PAUSED, MAIN_MENU, GAME_ERROR_TEXTURE };
 
 struct TextSegment
 {
@@ -33,7 +31,6 @@ public:
 
     std::unique_ptr<Player> player;
     bool shouldClose;
-    Settings settings;
 
     void init();
     void reset();
@@ -76,7 +73,6 @@ private:
     float shakeEndTime{};
     float shakeIntensity{};
     Vector2 windowPos{};
-    bool isPaused;
 
     void createAttack();
     void spawnBomb();
