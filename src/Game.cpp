@@ -16,16 +16,24 @@
 #include <memory>
 
 Game::Game()
-    : player(nullptr), shouldClose(false), gameState(GameState::MAIN_MENU), bombTimer(0.f),
-      attackTimer(0.f), timeStart(GetTime()), timeEnd(0.f), boss(nullptr), isShaking(false)
+    : player(nullptr), shouldClose(false), shouldRestart(false), gameState(GameState::MAIN_MENU),
+      bombTimer(0.f), attackTimer(0.f), timeEnd(0.f), boss(nullptr), isShaking(false)
 {
 }
 
+float Game::gameTime = 0.f;
+
 void Game::init()
 {
+    Settings::load();
+    if (!Settings::tempConfig.vsync)
+        ClearWindowState(FLAG_VSYNC_HINT);
+    SetConfigFlags(Settings::tempConfig.vsync ? FLAG_VSYNC_HINT
+                                              : 0); // enable VSync before InitWindow
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Kurdistan Bombalayici");
     SetExitKey(KEY_NULL); // disable ESC key
-    InitAudioDevice();
+    if (!shouldRestart)
+        InitAudioDevice();
     InitMovementBounds(GetScreenWidth(), GetScreenHeight());
     SetWindowIcon(LoadImage("assets/icon.png"));
 
@@ -44,8 +52,13 @@ void Game::init()
     } else
         Settings::init();
 
-    player = std::make_unique<Player>(playerTexture);
-    boss = std::make_unique<Boss>(bossTexture, lareiTexture);
+    if (!shouldRestart) {
+        player = std::make_unique<Player>(playerTexture);
+        boss = std::make_unique<Boss>(bossTexture, lareiTexture);
+    } else {
+        TraceLog(LOG_INFO, "Game restarted");
+        shouldRestart = false;
+    }
 }
 
 void Game::reset()
@@ -53,8 +66,8 @@ void Game::reset()
     gameState = GameState::MAIN_MENU;
     bombTimer = 0.f;
     attackTimer = 0.f;
-    timeStart = GetTime();
     timeEnd = 0.f;
+    gameTime = 0.f;
     bossAttacks.clear();
     bombs.clear();
     isShaking = false;
@@ -69,6 +82,14 @@ void Game::reset()
 
 void Game::update()
 {
+    if (shouldRestart) {
+        // restart the window
+        TraceLog(LOG_INFO, "Restarting game");
+        CloseWindow();
+        init();
+        return;
+    }
+
     const bool shouldPlay = (gameState == GameState::PLAYING && !Settings::config.muteMusic);
 
     if (shouldPlay && !IsMusicStreamPlaying(bgMusic)) {
@@ -119,7 +140,7 @@ void Game::update()
 
             // shake the window
             if (isShaking) {
-                const float remainingTime = shakeEndTime - GetTime();
+                const float remainingTime = shakeEndTime - gameTime;
                 if (remainingTime > 0) {
                     const float duration =
                         shakeEndTime - (shakeEndTime - remainingTime); // shake duration
@@ -143,9 +164,11 @@ void Game::update()
             }
             break;
         default:
-            player->resetMouseTarget(); // reset mouse target when not playing
             break;
     }
+
+    if (gameState != GameState::PLAYING)
+        player->resetMouseTarget(); // reset mouse target when not playing
 
     if (gameState != lastGameState) {
         switch (gameState) {
@@ -156,7 +179,7 @@ void Game::update()
             case GameState::PLAYING:
                 TraceLog(LOG_INFO, "Game started");
                 setDiscordActivity(getDifficultyName(currentDifficulty), "Kurdistani Bombaliyor",
-                                   timeStart / 1000);
+                                   gameTime / 1000);
                 break;
             case GameState::WIN:
                 TraceLog(LOG_INFO, "Game won");
@@ -260,11 +283,9 @@ void Game::handleInput()
 {
     switch (gameState) {
         case GameState::PLAYING:
-            // gamepad Circle button
             if (Input::isEscapeKey()) {
                 TraceLog(LOG_INFO, "Game paused");
                 setGameState(GameState::PAUSED);
-                return;
             }
 #ifdef DEBUG_MODE
             if (Input::isKeyPressed(KEY_I))
@@ -340,12 +361,7 @@ void Game::setGameState(GameState newState)
     if (newState == GameState::GAME_OVER || newState == GameState::WIN ||
         newState == GameState::PAUSED) {
         // stop the game timer
-        timeEnd = GetTime();
-    }
-
-    if (newState == GameState::PLAYING && gameState == GameState::PAUSED) {
-        timeStart += GetTime() - timeEnd;
-        timeEnd = 0.f;
+        timeEnd = gameTime;
     }
 
     gameState = newState;
@@ -353,6 +369,7 @@ void Game::setGameState(GameState newState)
 
 void Game::updateTimers()
 {
+    gameTime += GetFrameTime();
     bombTimer += GetFrameTime();
     attackTimer += GetFrameTime();
 
@@ -421,7 +438,7 @@ void Game::spawnBomb()
 void Game::shakeWindow(float duration, float intensity)
 {
     windowPos = GetWindowPosition();
-    shakeEndTime = GetTime() + duration;
+    shakeEndTime = gameTime + duration;
     shakeIntensity = intensity;
     isShaking = true;
 }
@@ -532,10 +549,9 @@ void Game::connectDiscord()
 
 const char *Game::formatTime() const
 {
-    const float timeElapsed = (timeEnd > 0 ? timeEnd : GetTime()) - timeStart;
-    const int minutes = static_cast<int>(timeElapsed / 60);
-    const int seconds = static_cast<int>(timeElapsed) % 60;
-    const int milliseconds = static_cast<int>(timeElapsed * 1000) % 1000 / 10;
+    const int minutes = static_cast<int>(gameTime / 60);
+    const int seconds = static_cast<int>(gameTime) % 60;
+    const int milliseconds = static_cast<int>(gameTime * 1000) % 1000 / 10;
     return TextFormat("%02d:%02d.%02d", minutes, seconds, milliseconds);
 }
 

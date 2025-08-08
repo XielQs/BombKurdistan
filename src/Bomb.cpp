@@ -1,12 +1,13 @@
 #include "Bomb.hpp"
 
 #include "Constants.hpp"
+#include "Game.hpp"
 #include "raylib.h"
 
 #include <cmath>
 
 Bomb::Bomb(const Texture2D &texture, Vector2 position)
-    : position(position), texture(texture), expireTime(GetTime() + BOMB_LIFETIME),
+    : position(position), texture(texture), expireTime(Game::gameTime + BOMB_LIFETIME),
       currentScale(1.0f)
 {
 }
@@ -49,7 +50,7 @@ void Bomb::update(const Player &player, Boss &boss, float deltaTime)
 
 bool Bomb::isAlive() const
 {
-    return (GetTime() < expireTime);
+    return (Game::gameTime < expireTime);
 }
 
 void Bomb::explode(Boss &boss)

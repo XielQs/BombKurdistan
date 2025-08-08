@@ -81,13 +81,13 @@ public:
     static void handleInput();
     static void draw();
     static void save();
+    static void load();
 
 private:
     static SettingsState state;
     static std::string settingsPath;
 
-    static void load();
-    static void applySettings();
+    static void applySettings(bool isInit = false);
     static void drawMainMenu();
     static void handleMainMenuInput();
     static void drawVideoSettings();

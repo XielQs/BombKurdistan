@@ -2,6 +2,7 @@
 
 #include "Constants.hpp"
 #include "Difficulty.hpp"
+#include "Game.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -28,12 +29,12 @@ BossAttack::BossAttack(Vector2 position, AttackSize size)
                          : (currentDifficulty == Difficulty::NORMAL)
                              ? BossAttackConfig::NORMAL_FACTOR
                              : BossAttackConfig::HARD_FACTOR;
-    explodeTime =
-        GetTime() + (size == AttackSize::SMALL
-                         ? BossAttackConfig::SMALL_EXPLODE_TIME
-                         : (size == AttackSize::MEDIUM ? BossAttackConfig::MEDIUM_EXPLODE_TIME
-                                                       : BossAttackConfig::LARGE_EXPLODE_TIME)) *
-                        factor;
+    explodeTime = Game::gameTime +
+                  (size == AttackSize::SMALL
+                       ? BossAttackConfig::SMALL_EXPLODE_TIME
+                       : (size == AttackSize::MEDIUM ? BossAttackConfig::MEDIUM_EXPLODE_TIME
+                                                     : BossAttackConfig::LARGE_EXPLODE_TIME)) *
+                      factor;
 }
 
 void BossAttack::draw() const
@@ -56,7 +57,7 @@ bool BossAttack::isAlive() const
 
 void BossAttack::update(Player &player)
 {
-    if (!exploded && GetTime() > explodeTime)
+    if (!exploded && Game::gameTime > explodeTime)
         explode();
 
     const auto screenWidth = static_cast<float>(GetScreenWidth());

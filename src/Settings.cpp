@@ -25,7 +25,7 @@ SettingsState Settings::state = SettingsState::MAIN_MENU;
 void Settings::init()
 {
     load();
-    applySettings();
+    applySettings(true);
 }
 
 void Settings::reset()
@@ -77,22 +77,33 @@ void Settings::save()
     file.close();
 }
 
-void Settings::applySettings()
+void Settings::applySettings(bool isInit)
 {
     if (!IsWindowReady()) {
         TraceLog(LOG_ERROR, "Window is not ready, cannot apply video settings.");
         return;
     }
-    if (tempConfig.targetFPS != config.targetFPS || tempConfig.vsync != config.vsync)
-        SetTargetFPS(tempConfig.vsync ? 0 : tempConfig.targetFPS);
-    if (tempConfig.vsync != config.vsync)
-        SetWindowState(tempConfig.vsync ? FLAG_VSYNC_HINT : 0);
+
+    // DiscordRPC
     if (tempConfig.discordRPC != config.discordRPC) {
         if (tempConfig.discordRPC)
             game.connectDiscord();
         else
             game.disconnectDiscord();
     }
+
+    // restart the game if VSync is changed
+    if (!isInit && (tempConfig.vsync != config.vsync)) {
+        config = tempConfig; // early merge config
+        save();
+        game.shouldRestart = true;
+        return; // reinitialize the game to apply VSync
+    }
+
+    if (tempConfig.targetFPS != config.targetFPS || (isInit && tempConfig.vsync != config.vsync)) {
+        SetTargetFPS(tempConfig.vsync ? 0 : tempConfig.targetFPS);
+    }
+
     // TODO: add fullscreen
     config = tempConfig; // apply temporary config to the main config
 }

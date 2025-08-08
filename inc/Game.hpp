@@ -31,6 +31,8 @@ public:
 
     std::unique_ptr<Player> player;
     bool shouldClose;
+    bool shouldRestart;
+    static float gameTime;
 
     void init();
     void reset();
@@ -59,7 +61,6 @@ private:
 #endif
     float bombTimer;
     float attackTimer;
-    float timeStart;
     float timeEnd;
     std::unique_ptr<Boss> boss;
     std::vector<std::unique_ptr<BossAttack>> bossAttacks;
