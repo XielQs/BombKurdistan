@@ -54,6 +54,9 @@ https://github.com/user-attachments/assets/4d711217-3279-4683-b387-9cbfc0646ffb
 
 ### Controls
 
+Oyun cogunlukla klavye ve gamepad ile oynanabilir, ok tuslari ile menude gezinebilir ve oyun esnasinda
+hareket edebilirsiniz. Fare ile de oyun esnasinda belli bir yere tiklayarak hareket edebilirsiniz.
+
 #### Keyboard
 
 - `W` - yukari
@@ -63,8 +66,6 @@ https://github.com/user-attachments/assets/4d711217-3279-4683-b387-9cbfc0646ffb
 - `ESC` - menu/cikis
 - `M` - sesi ac/kapat
 - `R` - yeniden basla
-- `C` - yapimcilar menusu
-- `P` - oyunu durdur
 
 #### Gamepad
 
@@ -75,8 +76,6 @@ https://github.com/user-attachments/assets/4d711217-3279-4683-b387-9cbfc0646ffb
 - `ps daire` - menu/cikis
 - `ps kare` - sesi ac/kapat
 - `ps x` - yeniden basla
-- `ps ucgen` - yapimcilar menusu
-- `ps L1` - oyunu durdur
 
 ## Special Thanks
 
