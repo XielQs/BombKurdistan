@@ -4,7 +4,6 @@ set -e
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # no color
 
@@ -158,6 +157,13 @@ build_project() {
     else
         if [[ -f "bombkurdistan" ]]; then
             log_success "Linux binary created: bombkurdistan"
+            # strip the binary
+            if is_command_available strip; then
+                log_info "Stripping binary..."
+                strip bombkurdistan || log_error "Failed to strip binary"
+            else
+                log_info "strip command not found, skipping binary stripping."
+            fi
         fi
     fi
 }
