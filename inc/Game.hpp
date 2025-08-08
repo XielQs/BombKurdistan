@@ -74,6 +74,9 @@ private:
     float shakeEndTime{};
     float shakeIntensity{};
     Vector2 windowPos{};
+    int currentFPS = 0;
+    float fpsTimer = 0.f;
+    int framesThisSecond = 0;
 
     void createAttack();
     void spawnBomb();

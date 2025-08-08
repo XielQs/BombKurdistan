@@ -90,6 +90,15 @@ void Game::update()
         return;
     }
 
+    fpsTimer += GetFrameTime();
+    framesThisSecond++;
+
+    if (fpsTimer >= 1.0f) {
+        currentFPS = framesThisSecond;
+        framesThisSecond = 0;
+        fpsTimer = 0.f;
+    }
+
     const bool shouldPlay = (gameState == GameState::PLAYING && !Settings::config.muteMusic);
 
     if (shouldPlay && !IsMusicStreamPlaying(bgMusic)) {
@@ -219,7 +228,7 @@ void Game::draw() const
             // draw menu items
             DrawText(TextFormat("Zaman: %s", formatTime()), GetScreenWidth() - TEXT_HEIGHT * 6.5f,
                      TEXT_HEIGHT * 0.5, 20, WHITE);
-            DrawText(TextFormat("FPS: %d", GetFPS()), GetScreenWidth() - TEXT_HEIGHT * 3,
+            DrawText(TextFormat("FPS: %d", currentFPS), GetScreenWidth() - TEXT_HEIGHT * 3,
                      GetScreenHeight() - TEXT_HEIGHT, 18, WHITE);
             break;
         case GameState::GAME_OVER:
