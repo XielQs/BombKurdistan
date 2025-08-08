@@ -530,7 +530,6 @@ void Game::connectDiscord()
 #endif
 }
 
-// TODO: fix time issue when user pauses the game
 const char *Game::formatTime() const
 {
     const float timeElapsed = (timeEnd > 0 ? timeEnd : GetTime()) - timeStart;
