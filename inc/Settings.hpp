@@ -85,8 +85,8 @@ public:
 
 private:
     static SettingsState state;
-    static std::string settingsPath;
 
+    static std::string getSettingsPath();
     static void applySettings(bool isInit = false);
     static void drawMainMenu();
     static void handleMainMenuInput();

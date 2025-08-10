@@ -6,14 +6,12 @@
 #include "MainMenu.hpp"
 #include "raylib.h"
 
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <string>
 
 extern Game game;
-
-std::string Settings::settingsPath =
-    std::string(getenv("HOME")) + "/.config/BombKurdistan/settings.cfg";
 
 Config Settings::config{};
 Config Settings::tempConfig{};
@@ -38,9 +36,27 @@ void Settings::reset()
     tempConfig = config; // reset temp config to default
 }
 
+std::string Settings::getSettingsPath()
+{
+#ifdef _WIN32
+    const char *envVar = "APPDATA";
+    const char *suffix = "/BombKurdistan/settings.cfg";
+#else
+    const char *envVar = "HOME";
+    const char *suffix = "/.config/BombKurdistan/settings.cfg";
+#endif
+
+    if (auto path = getenv(envVar))
+        return std::string(path) + suffix;
+
+    TraceLog(LOG_WARNING, "Could not find %s environment variable. Using current directory.",
+             envVar);
+    return "settings.cfg";
+}
+
 void Settings::load()
 {
-    std::ifstream file(settingsPath);
+    std::ifstream file(getSettingsPath());
     if (!file.is_open()) {
         TraceLog(LOG_WARNING, "Settings file not found, using default settings.");
         reset();
@@ -65,10 +81,11 @@ void Settings::load()
 
 void Settings::save()
 {
-    std::filesystem::create_directory(std::filesystem::path(settingsPath).parent_path());
-    std::ofstream file(settingsPath);
+    std::filesystem::create_directory(std::filesystem::path(getSettingsPath()).parent_path());
+    std::ofstream file(getSettingsPath());
     if (!file.is_open()) {
-        TraceLog(LOG_ERROR, "Failed to open settings file for writing: %s", settingsPath.c_str());
+        TraceLog(LOG_ERROR, "Failed to open settings file for writing: %s",
+                 getSettingsPath().c_str());
         return;
     }
 
