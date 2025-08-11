@@ -21,6 +21,7 @@ struct Config
     bool muteMusic;
 
     bool discordRPC;
+    bool shakeScreen;
 
     void writeFile(std::ofstream &file) const
     {
@@ -29,7 +30,8 @@ struct Config
         file << "fullscreen=" << (fullscreen ? "1" : "0") << "\n";
         file << "musicVolume=" << musicVolume << "\n";
         file << "muteMusic=" << (muteMusic ? "1" : "0") << "\n";
-        file << "discordRPC=" << (discordRPC ? "1" : "0");
+        file << "discordRPC=" << (discordRPC ? "1" : "0") << "\n";
+        file << "shakeScreen=" << (shakeScreen ? "1" : "0") << "\n";
     }
 
     void fromKey(const std::string &key, const std::string &value)
@@ -46,6 +48,8 @@ struct Config
             muteMusic = (value == "1");
         else if (key == "discordRPC")
             discordRPC = (value == "1");
+        else if (key == "shakeScreen")
+            shakeScreen = (value == "1");
         else
             TraceLog(LOG_WARNING, "Unknown setting: %s", key.c_str());
     }

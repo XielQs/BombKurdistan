@@ -446,6 +446,10 @@ void Game::spawnBomb()
 
 void Game::shakeWindow(float duration, float intensity)
 {
+    if (!Settings::config.shakeScreen) {
+        TraceLog(LOG_INFO, "Screen shake is disabled in settings");
+        return;
+    }
     windowPos = GetWindowPosition();
     shakeEndTime = gameTime + duration;
     shakeIntensity = intensity;

@@ -41,6 +41,7 @@ void PauseScreen::handleInput()
     if (Input::isEscapeKey()) {
         // resume the game
         game.setGameState(GameState::PLAYING);
+        selectedOption = 0; // reset selected option
     }
 
     if (Input::isArrowUp())
@@ -52,6 +53,7 @@ void PauseScreen::handleInput()
         switch (selectedOption) {
             case 0: // Devam Et
                 game.setGameState(GameState::PLAYING);
+                selectedOption = 0; // reset selected option
                 break;
             case 1: // Ayarlar
                 Settings::previousGameState = GameState::PAUSED;

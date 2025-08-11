@@ -28,12 +28,14 @@ void Settings::init()
 
 void Settings::reset()
 {
-    config.vsync = true;
-    config.targetFPS = DEFAULT_GAME_FPS;
-    config.musicVolume = 1.0f;
-    config.muteMusic = false;
-    config.discordRPC = true;
-    tempConfig = config; // reset temp config to default
+    tempConfig.vsync = true;
+    tempConfig.targetFPS = DEFAULT_GAME_FPS;
+    tempConfig.musicVolume = 1.0f;
+    tempConfig.muteMusic = false;
+    tempConfig.discordRPC = true;
+    tempConfig.shakeScreen = true;
+    config = tempConfig; // set default config
+    save();
 }
 
 std::string Settings::getSettingsPath()
@@ -353,23 +355,30 @@ void Settings::drawOtherSettings()
     Game::drawTextCenter("Platformunuz bu ozelligi desteklemiyor", SCREEN_DRAW_X,
                          SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 19, RED);
 #endif
+
+    drawToggleOption("Ekran Sarsintisi", tempConfig.shakeScreen, 1,
+                     SCREEN_DRAW_Y + TEXT_HEIGHT * 2);
+
     Game::drawTextCenter("AYARLARI UYGULA", SCREEN_DRAW_X, SCREEN_HEIGHT - TEXT_HEIGHT * 5, 20,
-                         (selectedOption == 1) ? GREEN : DARKGREEN);
+                         (selectedOption == 2) ? GREEN : DARKGREEN);
 }
 
 void Settings::handleOtherSettingsInput()
 {
     if (Input::isArrowUp())
-        selectedOption = (selectedOption - 1 + 2) % 2;
+        selectedOption = (selectedOption - 1 + 3) % 3;
     if (Input::isArrowDown())
-        selectedOption = (selectedOption + 1) % 2;
+        selectedOption = (selectedOption + 1) % 3;
 
     if (Input::isEnterOrSpace() || Input::isArrowLeft() || Input::isArrowRight()) {
         switch (selectedOption) {
             case 0: // Discord RPC
                 tempConfig.discordRPC = !tempConfig.discordRPC;
                 break;
-            case 1: // Uygula
+            case 1: // Ekran Sarsintisi
+                tempConfig.shakeScreen = !tempConfig.shakeScreen;
+                break;
+            case 2: // Uygula
                 applySettings();
                 save();
                 state = SettingsState::MAIN_MENU;
