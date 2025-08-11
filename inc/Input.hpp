@@ -11,7 +11,10 @@ public:
     static bool isPlayerDown();
     static bool isPlayerLeft();
     static bool isPlayerRight();
-    static bool isLeftButton();
+    static bool isMouseLeftButtonDown();
+    static bool isMouseRightButtonDown();
+    static bool isMouseLeftButton();
+    static bool isMouseRightButton();
     static bool isEscapeKey();
     static bool isPauseKey();
     static bool isResetKey();

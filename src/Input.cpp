@@ -29,18 +29,43 @@ bool Input::isPlayerRight()
            IsGamepadButtonDown(0, GAMEPAD_BUTTON_LEFT_FACE_RIGHT);
 }
 
-bool Input::isLeftButton()
+bool Input::isMouseLeftButtonDown()
 {
-    if (isMouseLocked) {
-        return false; // do not allow left button click if mouse is locked
+    if (isMouseLocked || !IsWindowFocused()) {
+        return false; // do not allow left button click if mouse is locked or window is not focused
     }
     return IsMouseButtonDown(MOUSE_BUTTON_LEFT);
+}
+
+bool Input::isMouseRightButtonDown()
+{
+    if (isMouseLocked || !IsWindowFocused()) {
+        return false; // do not allow right button click if mouse is locked or window is not focused
+    }
+    return IsMouseButtonDown(MOUSE_BUTTON_RIGHT);
+}
+
+bool Input::isMouseLeftButton()
+{
+    if (isMouseLocked || !IsWindowFocused()) {
+        return false; // do not allow left button click if mouse is locked or window is not focused
+    }
+    return IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
+}
+
+bool Input::isMouseRightButton()
+{
+    if (isMouseLocked || !IsWindowFocused()) {
+        return false; // do not allow right button click if mouse is locked or window is not focused
+    }
+    return IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
 }
 
 bool Input::isEscapeKey()
 {
     // gamepad Circle button
-    return IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT);
+    return IsKeyPressed(KEY_ESCAPE) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_RIGHT) ||
+           isMouseRightButton();
 }
 
 bool Input::isPauseKey()
@@ -59,7 +84,7 @@ bool Input::isEnterOrSpace()
 {
     // gamepad X button
     return IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_SPACE) ||
-           IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN);
+           IsGamepadButtonPressed(0, GAMEPAD_BUTTON_RIGHT_FACE_DOWN) || isMouseLeftButton();
 }
 
 bool Input::isKeyPressed(KeyboardKey key)
@@ -69,12 +94,16 @@ bool Input::isKeyPressed(KeyboardKey key)
 
 bool Input::isArrowUp()
 {
-    return IsKeyPressed(KEY_UP) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_UP);
+    // mouse scrolling up
+    return IsKeyPressed(KEY_UP) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_UP) ||
+           GetMouseWheelMove() > 0;
 }
 
 bool Input::isArrowDown()
 {
-    return IsKeyPressed(KEY_DOWN) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN);
+    // mouse scrolling down
+    return IsKeyPressed(KEY_DOWN) || IsGamepadButtonPressed(0, GAMEPAD_BUTTON_LEFT_FACE_DOWN) ||
+           GetMouseWheelMove() < 0;
 }
 
 bool Input::isArrowLeft()

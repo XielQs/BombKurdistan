@@ -74,7 +74,8 @@ void MainMenu::drawMainMenu()
 }
 void MainMenu::handleMainMenuInput()
 {
-    if (Input::isEscapeKey())
+    // prevent accidental exit
+    if (Input::isEscapeKey() && !Input::isMouseRightButton())
         game.cleanup();
 
     if (Input::isArrowUp())
@@ -178,6 +179,7 @@ void MainMenu::handleDifficultyInput()
             state = MainMenuState::MAIN_MENU;
             selectedDifficulty = 1; // reset selected difficulty to NORMAL
         } else {
+            Input::lockMouse();
             currentDifficulty = static_cast<Difficulty>(selectedDifficulty);
             game.reset();
             game.setGameState(GameState::PLAYING);

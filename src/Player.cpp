@@ -59,7 +59,7 @@ void Player::update()
     previousPosition = position;
     Vector2 input = {0, 0};
 
-    if (Input::isLeftButton()) {
+    if (Input::isMouseLeftButtonDown()) {
         mouseTarget = GetMousePosition();
         isMouseTargetSet = true;
     }
