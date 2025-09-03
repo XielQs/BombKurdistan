@@ -64,7 +64,6 @@ hareket edebilirsiniz. Fare ile de oyun esnasinda belli bir yere tiklayarak hare
 - `S` - asagi
 - `D` - saga
 - `ESC` - menu/cikis
-- `M` - sesi ac/kapat
 - `R` - yeniden basla
 
 #### Gamepad
@@ -74,7 +73,6 @@ hareket edebilirsiniz. Fare ile de oyun esnasinda belli bir yere tiklayarak hare
 - `dpad asagi` - asagi
 - `dpad sag` - saga
 - `ps daire` - menu/cikis
-- `ps kare` - sesi ac/kapat
 - `ps x` - yeniden basla
 
 ## Special Thanks
