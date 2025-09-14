@@ -18,6 +18,7 @@ struct Config
     bool fullscreen;
 
     float musicVolume;
+    int bgMusicIndex; // index of the selected background music track
 
     bool discordRPC;
     bool shakeScreen;
@@ -28,6 +29,7 @@ struct Config
         file << "targetFPS=" << targetFPS << "\n";
         file << "fullscreen=" << (fullscreen ? "1" : "0") << "\n";
         file << "musicVolume=" << musicVolume << "\n";
+        file << "bgMusicIndex=" << bgMusicIndex << "\n";
         file << "discordRPC=" << (discordRPC ? "1" : "0") << "\n";
         file << "shakeScreen=" << (shakeScreen ? "1" : "0") << "\n";
     }
@@ -42,6 +44,8 @@ struct Config
             fullscreen = (value == "1");
         else if (key == "musicVolume")
             musicVolume = std::stof(value);
+        else if (key == "bgMusicIndex")
+            bgMusicIndex = std::stoi(value);
         else if (key == "discordRPC")
             discordRPC = (value == "1");
         else if (key == "shakeScreen")
@@ -59,6 +63,10 @@ struct Config
         if (musicVolume < 0.0f || musicVolume > 1.0f) {
             TraceLog(LOG_WARNING, "Invalid music volume setting, resetting to default.");
             musicVolume = 1.0f;
+        }
+        if (bgMusicIndex != 0 && bgMusicIndex != 1) { // currently we have only 2 tracks
+            TraceLog(LOG_WARNING, "Invalid background music index, resetting to default.");
+            bgMusicIndex = 0;
         }
     }
 };

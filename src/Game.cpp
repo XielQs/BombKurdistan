@@ -41,12 +41,19 @@ void Game::init()
     playerTexture = LoadTexture("assets/player.png");
     bombTexture = LoadTexture("assets/bomb.png");
     lareiTexture = LoadTexture("assets/larei.png");
-    bgMusic = LoadMusicStream("assets/bg_music.mp3");
+
+    std::vector<std::string> musicFiles = {"assets/bg_music.mp3", "assets/bg_music_funk.mp3"};
+
+    for (auto &file : musicFiles) {
+        bgMusics.push_back(LoadMusicStream(file.c_str()));
+    }
+
+    bgMusic = &bgMusics[Settings::tempConfig.bgMusicIndex];
 
     windowPos = GetWindowPosition();
 
     if (bossTexture.id <= 0 || playerTexture.id <= 0 || bombTexture.id <= 0 ||
-        lareiTexture.id <= 0 || bgMusic.ctxType == 0) {
+        lareiTexture.id <= 0 || bgMusic->ctxType == 0) {
         TraceLog(LOG_ERROR, "Failed to load textures");
         setGameState(GameState::GAME_ERROR_TEXTURE);
     } else
@@ -77,7 +84,7 @@ void Game::reset()
     if (boss)
         boss->init();
 
-    StopMusicStream(bgMusic);
+    StopMusicStream(*bgMusic);
 }
 
 void Game::update()
@@ -101,13 +108,13 @@ void Game::update()
 
     const bool shouldPlay = gameState == GameState::PLAYING;
 
-    if (shouldPlay && !IsMusicStreamPlaying(bgMusic)) {
-        PlayMusicStream(bgMusic);
-    } else if (!shouldPlay && IsMusicStreamPlaying(bgMusic)) {
-        StopMusicStream(bgMusic);
+    if (shouldPlay && !IsMusicStreamPlaying(*bgMusic)) {
+        PlayMusicStream(*bgMusic);
+    } else if (!shouldPlay && IsMusicStreamPlaying(*bgMusic)) {
+        StopMusicStream(*bgMusic);
     }
 
-    UpdateMusicStream(bgMusic);
+    UpdateMusicStream(*bgMusic);
 
     switch (gameState) {
         case GameState::PLAYING:
@@ -351,8 +358,11 @@ void Game::cleanup()
     UnloadTexture(playerTexture);
     UnloadTexture(bombTexture);
     UnloadTexture(lareiTexture);
-    StopMusicStream(bgMusic);
-    UnloadMusicStream(bgMusic);
+    for (auto &music : bgMusics) {
+        StopMusicStream(music);
+        UnloadMusicStream(music);
+    }
+    bgMusics.clear();
     if (IsAudioDeviceReady())
         CloseAudioDevice();
     disconnectDiscord();
@@ -560,9 +570,15 @@ void Game::connectDiscord()
 #endif
 }
 
-Music Game::getBGMusic() const
+Music *Game::getBGMusic() const
 {
     return bgMusic;
+}
+
+void Game::setBGMusic(Music *music)
+{
+    if (music)
+        bgMusic = music;
 }
 
 const char *Game::formatTime() const

@@ -31,6 +31,7 @@ void Settings::reset()
     tempConfig.vsync = true;
     tempConfig.targetFPS = DEFAULT_GAME_FPS;
     tempConfig.musicVolume = 1.0f;
+    tempConfig.bgMusicIndex = 0;
     tempConfig.discordRPC = true;
     tempConfig.shakeScreen = true;
     config = tempConfig; // set default config
@@ -123,8 +124,15 @@ void Settings::applySettings(bool isInit)
     }
 
     // adjust music volume
-    if (tempConfig.musicVolume != config.musicVolume) {
-        SetMusicVolume(game.getBGMusic(), tempConfig.musicVolume);
+    if (tempConfig.musicVolume != config.musicVolume ||
+        tempConfig.bgMusicIndex != config.bgMusicIndex) {
+        SetMusicVolume(*game.getBGMusic(), tempConfig.musicVolume);
+    }
+
+    if (tempConfig.bgMusicIndex != config.bgMusicIndex) {
+        StopMusicStream(*game.getBGMusic());
+        game.setBGMusic(&game.bgMusics[tempConfig.bgMusicIndex]);
+        PlayMusicStream(*game.getBGMusic());
     }
 
     // TODO: add fullscreen
@@ -318,18 +326,25 @@ void Settings::drawAudioSettings()
 
     Game::drawTextCombined(SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20,
                            {{"Muzik Ses Seviyesi", (selectedOption == 0) ? YELLOW : GRAY},
-                            {TextFormat(": %.0f%%", tempConfig.musicVolume * 100), WHITE}});
+                            {TextFormat("%.0f%%", tempConfig.musicVolume * 100), WHITE}});
+
+    Game::drawTextCombined(SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20,
+                           {{"Arka Plan Muzigi", (selectedOption == 1) ? YELLOW : GRAY},
+                            {tempConfig.bgMusicIndex == 0   ? "Varsayilan"
+                             : tempConfig.bgMusicIndex == 1 ? "Funk (By Furkan)"
+                                                            : "Bilinmiyor",
+                             WHITE}});
 
     Game::drawTextCenter("AYARLARI UYGULA", SCREEN_DRAW_X, SCREEN_HEIGHT - TEXT_HEIGHT * 5, 20,
-                         (selectedOption == 1) ? GREEN : DARKGREEN);
+                         (selectedOption == 2) ? GREEN : DARKGREEN);
 }
 
 void Settings::handleAudioSettingsInput()
 {
     if (Input::isArrowUp())
-        selectedOption = (selectedOption - 1 + 2) % 2;
+        selectedOption = (selectedOption - 1 + 3) % 3;
     if (Input::isArrowDown())
-        selectedOption = (selectedOption + 1) % 2;
+        selectedOption = (selectedOption + 1) % 3;
 
     if (Input::isEnterOrSpace() || Input::isArrowLeft() || Input::isArrowRight()) {
         switch (selectedOption) {
@@ -339,7 +354,17 @@ void Settings::handleAudioSettingsInput()
                 if (Input::isArrowRight())
                     tempConfig.musicVolume = std::min(1.0f, tempConfig.musicVolume + 0.1f);
                 break;
-            case 1: // Uygula
+            case 1: // Arka Plan Muzigi
+            {
+                int musicSize = static_cast<int>(game.bgMusics.size()) - 1;
+                if (Input::isArrowLeft())
+                    tempConfig.bgMusicIndex =
+                        (tempConfig.bgMusicIndex <= 0) ? musicSize : tempConfig.bgMusicIndex - 1;
+                if (Input::isArrowRight())
+                    tempConfig.bgMusicIndex =
+                        (tempConfig.bgMusicIndex >= musicSize) ? 0 : tempConfig.bgMusicIndex + 1;
+            } break;
+            case 2: // Uygula
                 applySettings();
                 save();
                 state = SettingsState::MAIN_MENU;

@@ -33,6 +33,7 @@ public:
     bool shouldClose;
     bool shouldRestart;
     static float gameTime;
+    std::vector<Music> bgMusics{};
 
     void init();
     void reset();
@@ -50,7 +51,8 @@ public:
     static void marqueeText(const char *text, float y, float fontSize, Color color, float speed);
     void disconnectDiscord();
     void connectDiscord();
-    Music getBGMusic() const;
+    Music *getBGMusic() const;
+    void setBGMusic(Music *music);
 
 private:
     GameState gameState;
@@ -70,7 +72,7 @@ private:
     Texture2D playerTexture{};
     Texture2D bombTexture{};
     Texture2D lareiTexture{};
-    Music bgMusic{};
+    Music *bgMusic{};
     bool isShaking;
     float shakeEndTime{};
     float shakeIntensity{};

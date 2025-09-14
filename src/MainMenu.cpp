@@ -194,30 +194,40 @@ void MainMenu::handleDifficultyInput()
 
 void MainMenu::drawCredits()
 {
+    int itoa = -7;
     Game::marqueeText("TesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkurlerTesekkur"
                       "lerTesekkurler",
-                      SCREEN_DRAW_Y + TEXT_HEIGHT * -7, 20, WHITE, 80.f);
+                      SCREEN_DRAW_Y + TEXT_HEIGHT * itoa++, 20, WHITE, 80.f);
+    itoa++; // extra space
     Game::drawTextCenter("Herkese ayri ayri tesekkurlerimi sunuyorum siz olmasaniz", SCREEN_DRAW_X,
-                         SCREEN_DRAW_Y + TEXT_HEIGHT * -5, 20, GRAY);
+                         SCREEN_DRAW_Y + TEXT_HEIGHT * itoa++, 20, GRAY);
     Game::drawTextCenter("BombKurdistan projesi bu kadar gelisemezdi <3", SCREEN_DRAW_X,
-                         SCREEN_DRAW_Y + TEXT_HEIGHT * -4, 20, GRAY);
+                         SCREEN_DRAW_Y + TEXT_HEIGHT * itoa++, 20, GRAY);
     Game::drawTextCenter("(dunyanin en iyi oyun projesi)", SCREEN_DRAW_X,
-                         SCREEN_DRAW_Y + TEXT_HEIGHT * -3, 20, GRAY);
+                         SCREEN_DRAW_Y + TEXT_HEIGHT * itoa++, 20, GRAY);
 
-    Game::drawTextCenter("Programlama", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -1, 20,
+    itoa++; // extra space
+
+    Game::drawTextCenter("Programlama", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * itoa++, 20,
                          LIGHTGRAY);
-    Game::drawTextCenter("XielQ", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 0, 20, WHITE);
+    Game::drawTextCenter("XielQ", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * itoa++, 20, WHITE);
 
-    Game::drawTextCenter("Ozel Tesekkurler", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 2, 20,
+    itoa++; // extra space
+
+    Game::drawTextCenter("Muzik", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * itoa++, 20,
                          LIGHTGRAY);
+    Game::drawTextCenter("Furkan", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * itoa++, 20, WHITE);
 
-    Game::drawTextCenter("larei <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 3, 20, WHITE);
-    Game::drawTextCenter("kosero <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 4, 20, WHITE);
-    Game::drawTextCenter("yesil asya <3", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 5, 20,
-                         WHITE);
+    itoa++; // extra space
 
-    Game::drawTextCenter("Geri Don", SCREEN_DRAW_X, SCREEN_HEIGHT - TEXT_HEIGHT * 4, 20, YELLOW);
+    Game::drawTextCenter("Ozel Tesekkurler", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * itoa++,
+                         20, LIGHTGRAY);
 
-    Game::drawTextCenter("Bu oyun tamamen eglence amaciyla yapilmistir", SCREEN_DRAW_X,
-                         SCREEN_HEIGHT - TEXT_HEIGHT * 2, 20, GRAY);
+    Game::drawTextCenter("larei", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * itoa++, 20, WHITE);
+    Game::drawTextCenter("kosero", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * itoa++, 20, WHITE);
+
+    Game::drawTextCenter("Geri Don", SCREEN_DRAW_X, SCREEN_HEIGHT - TEXT_HEIGHT * 3, 20, YELLOW);
+
+    Game::drawTextCenter("Bu oyun tamamiyla eglence amaciyla yapilmistir", SCREEN_DRAW_X,
+                         SCREEN_HEIGHT - TEXT_HEIGHT * 1, 20, GRAY);
 }
