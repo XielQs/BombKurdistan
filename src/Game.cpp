@@ -99,7 +99,7 @@ void Game::update()
         fpsTimer = 0.f;
     }
 
-    const bool shouldPlay = (gameState == GameState::PLAYING && !Settings::config.muteMusic);
+    const bool shouldPlay = gameState == GameState::PLAYING;
 
     if (shouldPlay && !IsMusicStreamPlaying(bgMusic)) {
         PlayMusicStream(bgMusic);
@@ -558,6 +558,11 @@ void Game::connectDiscord()
     }
 
 #endif
+}
+
+Music Game::getBGMusic() const
+{
+    return bgMusic;
 }
 
 const char *Game::formatTime() const

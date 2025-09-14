@@ -31,7 +31,6 @@ void Settings::reset()
     tempConfig.vsync = true;
     tempConfig.targetFPS = DEFAULT_GAME_FPS;
     tempConfig.musicVolume = 1.0f;
-    tempConfig.muteMusic = false;
     tempConfig.discordRPC = true;
     tempConfig.shakeScreen = true;
     config = tempConfig; // set default config
@@ -121,6 +120,11 @@ void Settings::applySettings(bool isInit)
 
     if (tempConfig.targetFPS != config.targetFPS || (isInit && tempConfig.vsync != config.vsync)) {
         SetTargetFPS(tempConfig.vsync ? 0 : tempConfig.targetFPS);
+    }
+
+    // adjust music volume
+    if (tempConfig.musicVolume != config.musicVolume) {
+        SetMusicVolume(game.getBGMusic(), tempConfig.musicVolume);
     }
 
     // TODO: add fullscreen
@@ -312,7 +316,9 @@ void Settings::drawAudioSettings()
     Game::drawTextCenter("Ses Ayarlari", SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * -2, 20,
                          WHITE);
 
-    drawToggleOption("Muzigi sustur", tempConfig.muteMusic, 0, SCREEN_DRAW_Y + TEXT_HEIGHT * 0);
+    Game::drawTextCombined(SCREEN_DRAW_X, SCREEN_DRAW_Y + TEXT_HEIGHT * 1, 20,
+                           {{"Muzik Ses Seviyesi", (selectedOption == 0) ? YELLOW : GRAY},
+                            {TextFormat(": %.0f%%", tempConfig.musicVolume * 100), WHITE}});
 
     Game::drawTextCenter("AYARLARI UYGULA", SCREEN_DRAW_X, SCREEN_HEIGHT - TEXT_HEIGHT * 5, 20,
                          (selectedOption == 1) ? GREEN : DARKGREEN);
@@ -327,8 +333,11 @@ void Settings::handleAudioSettingsInput()
 
     if (Input::isEnterOrSpace() || Input::isArrowLeft() || Input::isArrowRight()) {
         switch (selectedOption) {
-            case 0: // Muzigi kapat
-                tempConfig.muteMusic = !tempConfig.muteMusic;
+            case 0: // Muzik Ses Seviyesi
+                if (Input::isArrowLeft())
+                    tempConfig.musicVolume = std::max(0.0f, tempConfig.musicVolume - 0.1f);
+                if (Input::isArrowRight())
+                    tempConfig.musicVolume = std::min(1.0f, tempConfig.musicVolume + 0.1f);
                 break;
             case 1: // Uygula
                 applySettings();

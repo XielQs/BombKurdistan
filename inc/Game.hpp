@@ -50,6 +50,7 @@ public:
     static void marqueeText(const char *text, float y, float fontSize, Color color, float speed);
     void disconnectDiscord();
     void connectDiscord();
+    Music getBGMusic() const;
 
 private:
     GameState gameState;

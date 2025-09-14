@@ -18,7 +18,6 @@ struct Config
     bool fullscreen;
 
     float musicVolume;
-    bool muteMusic;
 
     bool discordRPC;
     bool shakeScreen;
@@ -29,7 +28,6 @@ struct Config
         file << "targetFPS=" << targetFPS << "\n";
         file << "fullscreen=" << (fullscreen ? "1" : "0") << "\n";
         file << "musicVolume=" << musicVolume << "\n";
-        file << "muteMusic=" << (muteMusic ? "1" : "0") << "\n";
         file << "discordRPC=" << (discordRPC ? "1" : "0") << "\n";
         file << "shakeScreen=" << (shakeScreen ? "1" : "0") << "\n";
     }
@@ -44,8 +42,6 @@ struct Config
             fullscreen = (value == "1");
         else if (key == "musicVolume")
             musicVolume = std::stof(value);
-        else if (key == "muteMusic")
-            muteMusic = (value == "1");
         else if (key == "discordRPC")
             discordRPC = (value == "1");
         else if (key == "shakeScreen")
