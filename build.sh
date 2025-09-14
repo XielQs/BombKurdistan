@@ -34,7 +34,7 @@ show_help() {
 
 BUILD_TYPE="Release"
 CLEAN_BUILD=false
-JOBS=$(nproc)
+JOBS=$(nproc 2>/dev/null || echo 1)
 CREATE_ZIP=false
 WINDOWS_BUILD=false
 DISCORD_SUPPORT=true

@@ -102,6 +102,11 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
         list(APPEND LINK_LIBS discordrpc)
         link_directories(${PROJECT_SOURCE_DIR}/lib/discordrpc/build)
     endif ()
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    # macOS
+    set(LINK_LIBS raylib
+        "-framework Cocoa"
+    )
 endif ()
 
 add_executable(${PROJECT_NAME} ${SRCS})

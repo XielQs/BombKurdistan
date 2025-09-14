@@ -28,8 +28,8 @@ void Game::init()
     Settings::load();
     if (!Settings::tempConfig.vsync)
         ClearWindowState(FLAG_VSYNC_HINT);
-    SetConfigFlags(Settings::tempConfig.vsync ? FLAG_VSYNC_HINT
-                                              : 0); // enable VSync before InitWindow
+	// Set configuration flags for window creation
+    SetConfigFlags((Settings::tempConfig.vsync ? FLAG_VSYNC_HINT : 0) | FLAG_WINDOW_HIGHDPI);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Kurdistan Bombalayici");
     SetExitKey(KEY_NULL); // disable ESC key
     if (!shouldRestart)
