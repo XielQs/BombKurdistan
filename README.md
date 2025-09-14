@@ -79,9 +79,9 @@ hareket edebilirsiniz. Fare ile de oyun esnasinda belli bir yere tiklayarak hare
 
 Bu oyunun yapilmasinda yardimci olan ve bana ilham veren kisilere tesekkur ederim:
 
+- [furkan](https://github.com/fkerimk)
 - [larei](https://github.com/lareii)
 - [kosero](https://github.com/kosero)
-- yesil asya
 
 ## License
 
