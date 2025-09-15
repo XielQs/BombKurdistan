@@ -134,7 +134,7 @@ jobs:
         run: ./build.sh -z
 
       - name: Rename Mac zip
-        run: mv bombkurdistan.zip bombkurdistan_mac.zip
+        run: mv bombkurdistan_linux.zip bombkurdistan_mac.zip
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
